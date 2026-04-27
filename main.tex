@@ -10,6 +10,7 @@
 \usepackage{tikz}
 \usepackage{url}
 \usepackage{listings}
+\graphicspath{{figures/}{figures/latency/}}
 \usepackage{float}
 \usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
 \urlstyle{rm}
@@ -63,21 +64,8 @@ UnifiedXRMotion represents skeletal motion through a \emph{schema} rather than t
 
 \begin{figure}[t]
 \centering
-\begin{tikzpicture}[font=\small, node distance=9mm, >=Latex]
-  \tikzset{box/.style={draw, rounded corners, align=center, minimum height=7mm, fill=uxgray},bluebox/.style={box, draw=uxblue, fill=uxblue!8},greenbox/.style={box, draw=uxgreen, fill=uxgreen!8},orangebox/.style={box, draw=uxorange, fill=uxorange!10}}
-  \node[bluebox, minimum width=34mm] (schema) {Skeleton schema\\slot ids + parents};
-  \node[bluebox, right=of schema, minimum width=34mm] (views) {Region views\\hands, upper body, etc.};
-  \node[greenbox, below=of schema, minimum width=36mm] (record) {Per-slot record\\position, rotation,\\velocity, angular velocity};
-  \node[greenbox, right=of record, minimum width=36mm] (valid) {Validity flags\\component present?};
-  \node[orangebox, below=of record, xshift=22mm, minimum width=50mm] (wire) {Buffer views and wire format\\serialize only valid components};
-  \draw[->] (schema) -- (views);
-  \draw[->] (schema) -- (record);
-  \draw[->] (views) -- (valid);
-  \draw[->] (record) -- (valid);
-  \draw[->] (record) -- (wire);
-  \draw[->] (valid) -- (wire);
-\end{tikzpicture}
-\caption{Motion-data contract. A schema defines addressable slots and parent relations; trackers publish partial pose records; binary validity flags identify which components are present; buffer views and serialization expose the same contract to runtime nodes and network transport.}
+\includegraphics[width=\textwidth]{fig2-kinematicbuffer.pdf}
+\caption{Prototype buffer and region-view instantiation of the schema-based motion-data contract. The figure illustrates how a concrete full-body layout is exposed through buffer views for downstream nodes. The slot count shown in the prototype is an implementation example, not a universal skeleton standard or the conceptual contribution.}
 \label{fig:contract}
 \end{figure}
 
@@ -179,16 +167,8 @@ For client-server deployments, UnifiedXRMotion provides a network wrapper around
 
 \begin{figure}[t]
 \centering
-\begin{tikzpicture}[font=\small, node distance=7mm, >=Latex]
-  \tikzset{cell/.style={draw, rounded corners, align=center, minimum width=40mm, minimum height=13mm, fill=uxgray},client/.style={draw=uxblue, fill=uxblue!8}, server/.style={draw=uxorange, fill=uxorange!10}}
-  \node[cell, client] (cc) {ClientToClient\\producer, node, consumer\\on client};
-  \node[cell, server, right=of cc] (cs) {ClientToServer\\client publishes\\server executes};
-  \node[cell, server, below=of cc] (ss) {ServerToServer\\producer, node, consumer\\on server};
-  \node[cell, client, right=of ss] (sc) {ServerToClient\\server publishes\\client consumes};
-  \draw[->] (cc) -- (cs);
-  \draw[->] (ss) -- (sc);
-\end{tikzpicture}
-\caption{Four placement states exposed by the local/remote node wrapper. The same node implementation can be wrapped for different execution contexts, but output equivalence and latency effects must be measured separately.}
+\includegraphics[width=0.92\textwidth]{fig6-offload.pdf}
+\caption{Local/remote node-placement abstraction in the prototype. The same class of motion-node pipeline can be configured for local or remote execution contexts through a wrapper. The figure illustrates a placement mechanism, not deterministic equivalence or a general latency-improvement claim.}
 \label{fig:placement}
 \end{figure}
 
@@ -240,6 +220,13 @@ We conducted a within-subjects Unity setup task comparing a UnifiedXRMotion work
 
 To avoid conflating pipeline assembly with mesh-specific hand-axis calibration, custom hand retargeting and axis alignment were completed before each session. This made the comparison conservative with respect to UnifiedXRMotion's automatic hand-retargeting support, but it also means the study does not measure the full cost of integrating a previously unseen hand mesh. Participants were instructed to prioritize correctness and completion rather than speed. We therefore interpret completion time as a coarse measure of procedural setup burden, not as a pure speed-optimization measure.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{fig5-configure.pdf}
+\caption{Representative setup workflow used in the authoring case study. The figure is used to clarify the procedural configuration burden measured by the study; it is not a general proof of developer productivity or long-term maintainability.}
+\label{fig:configure-workflow}
+\end{figure}
+
 \begin{table}[H]
 \caption{Task-equivalence summary for the authoring case study. SDK A corresponds to UnifiedXRMotion; SDK B corresponds to the vendor SDK workflow.}\label{tab:task-equivalence}
 \scriptsize
@@ -278,6 +265,13 @@ Table~\ref{tab:user-results} suggests that the UnifiedXRMotion workflow reduced 
 UnifiedXRMotion allows selected motion nodes to be configured under local or remote placement. We use the latency traces in this subsection to illustrate this capability: a motion-buffer path can be placed differently and inspected with the prototype's logging utilities. These measurements are intended to characterize behavior exposed by the node-placement abstraction, not to establish superiority over vendor-native pipelines.
 
 The metric is application-level motion-pipeline latency. It includes runtime and network-wrapper timing captured by the prototype, but excludes tracker capture, SDK internal sampling, compositor scheduling, display scan-out, and photon emission. It is therefore not input-to-photon or motion-to-photon latency. Table~\ref{tab:latency-summary} reports the available traces.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.96\textwidth]{tick_comparison_analysis.pdf}
+\caption{Application-level motion-pipeline latency traces under local and remote node-placement configurations. The plots characterize runtime behavior exposed by the placement abstraction and exclude tracker capture, SDK-internal sampling, compositor scheduling, display scan-out, and photon emission. They should not be interpreted as input-to-photon measurements or vendor-native baselines.}
+\label{fig:latency-placement}
+\end{figure}
 
 \begin{table}[H]
 \caption{Application-level motion-pipeline latency under local and remote node-placement configurations. Each condition is a trace, not an independent repeated-run distribution.}\label{tab:latency-summary}

@@ -1,0 +1,6 @@
+- [x] #writing Write Configuration Authoring ⏫ 📅 2026-02-12 ✅ 2026-02-13
+- [x] #writing Write User Study ⏫ 📅 2026-02-12 ✅ 2026-02-13
+- [x] #writing Revise User Study ⏫ 📅 2026-02-20 ✅ 2026-02-20
+- [x] #writing Revise Related Work ⏫ 📅 2026-02-20
+- [x] #writing Revise Network Offloading implementation ⏫ 📅 2026-02-20 ✅ 2026-02-21
+- [x] #writing Revise Conclusion ⏫ 📅 2026-02-20 ✅ 2026-02-21

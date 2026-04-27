@@ -1,0 +1,187 @@
+coordinator review (reviewer 2)
+
+  Revised version check
+
+    (blank)
+
+  IRB Statements Checked
+
+    (blank)
+
+  Overall Rating
+
+    2 - Reject
+
+  1AC Full Review
+
+    The submission presents a modular, node-graph framework for avatar animation
+                across XR devices. The manuscript is clearly structured, but the
+                scientific contribution remains unclear. As written, the work
+                primarily reads as an integration layer around proprietary SDKs
+                (demonstrated only on Meta and XREAL), with limited evidence that the
+                approach generalizes to other trackers or significantly improves
+                cross-device application development.
+
+    Technical transparency is also lacking. Critical nodes (retargeting, fusion/IK)
+                are described only at a high level, making it difficult to distinguish
+                original work from wrapped vendor code. The paper does not provide
+                concrete interface schemas or data contracts, which complicates the
+                assessment of contribution, reproducibility, and maintainability.
+                Including concise code snippets or pseudocode and offering an
+                anonymized artifact during review would enable a clearer evaluation of
+                the framework.
+
+    The introduction makes broad claims about what makes avatars effective that do not
+                generally hold true. For example, the statement “To be effective,
+                avatars must replicate a user’s body accurately and responsively
+                across diverse contexts” overlooks evidence of effective embodiment
+                without strict visuomotor synchrony (e.g., visuotactile synchrony).
+                Several assertions also lack precise citations (e.g., the opening
+                claim about “supporting natural interaction and enhancing presence”).
+                The introduction would benefit from defining key terms and scope,
+                including what the authors consider an “avatar” (full-body humanoid
+                only, hands-only, or also non-humanoid representations).
+
+    The evaluation hinges on a latency metric labeled “input-to-photon/interaction
+                latency” that appears to exclude sensor sampling or
+                runtime/compositor. Hence, it effectively reports app-level pipeline
+                time rather than motion-to-photon. Without a component breakdown and a
+                side-by-side baseline against vendor pipelines, the reported numbers
+                are hard to interpret and do not reveal the overheads or benefits of
+                the proposed architecture. While the analysis indicates when
+                offloading is beneficial within this framework, the results are not
+                transferable outside of it. Additionally, there is no evidence of
+                usability or maintainability (e.g., switching control modes or device
+                families), nor is there a minimal example illustrating how a developer
+                would compose nodes and run a simple scene.
+
+    The submitted video further weakens the technical case: the avatar’s feet are
+                tilted relative to the ground plane, and there is noticeable whole-
+                body pose jitter, suggesting instability or inaccuracy in the
+                retargeting/IK pipeline. Overall, the system is practically
+                interesting, but in its current state, the manuscript does not
+                establish research novelty and exhibits visible quality issues. I
+                recommend rejection for the research track.
+
+    I would recommend that the authors submit it as a demo. Additionally, when adding
+                comparisons to baselines and usability evaluation, the work can be a
+                good contribution to the community in the future.
+
+  Meta-review
+
+    Thanks for your submission.
+    Based on the reviews, we’re issuing an early reject for the research track: the
+                work primarily serves as an integration layer around proprietary SDKs,
+                with unclear novelty, high-level technical detail, and
+                limited/ambiguous evaluation.
+    We encourage resubmission to the demo track and recommend adding concrete
+                interfaces/implementation examples, baselines for latency comparison,
+                and broader validation.
+
+----------------------------------------------------------------
+
+committee member review (reviewer 1)
+
+  Summary of Contributions
+
+    This paper presents a framework that enables to integrate into a unified approach
+                tracking inputs, as well as proprietary avatar animation modules
+                (e.g., IK, full-body or hand tracking). It is based on a nodal
+                approach, described as a Direct Acyclic Graph, where processing is
+                done successively on each note, and processed motion information
+                transferred to the downstream nodes. Implementation is demonstrated on
+                two main SDKs (Meta and XREAL).
+
+    Overall, it is an interesting technical system, which is well described and seems
+                to be technically sound. However, it is difficult to evaluate the
+                actual contribution of the paper as the framework mostly encompasses
+                existing proprietary SDKs, with a few existing animation methods
+                (e.g., IK, Categorical Codebook Matching), and it is therefore
+                difficult to evaluate its novelty and generalizability.
+
+  Clarity of Presentation
+
+    Good
+
+  Technical Soundness
+
+    Good
+
+  Reproducibility
+
+    Maybe
+
+  References
+
+    Some References Missing
+
+  IRB Approval Check
+
+    Not applicable (No experiment with human participants)
+
+  Participant Demographics
+
+    Not applicable (No experiment with human participants)
+
+  Participant Diversity
+
+    Not applicable (No experiment with human participants)
+
+  Expertise
+
+    Knowledgeable
+
+  Overall Rating
+
+    2 - Reject
+
+  Review
+
+    First, I would like to point out that the paper is overall very well presented. I
+                enjoyed reading the presented framework, which aims at encompassing in
+                a unified system avatar animation for XR applications on heterogenous
+                devices. The modular approach is well described, and seems to be
+                technically sound and following good development practices (e.g.,
+                description of buffers and data access in general,).
+
+    However, despite the clear presentation of the technical work performed, I had
+                difficulties identifying the novelty and the scientific contribution
+                of the submission. First, it builds vastly on proprietary SDKs, but
+                only demonstrates its application with Meta and XREAL SDKs. Numerous
+                other approaches exist (e.g., Xsens, Manus, other trackers) and it
+                difficult to evaluate the difficulty involved in implementing
+                interfaces for these systems. Second, the paper presents very high-
+                level information about the proposed architecture (mostly presenting
+                information related to sender/receiver paradigms, buffers,
+                registration), which while well-presented are quite standard
+                implementation practices and novel per se. In comparison, I would have
+                appreciated more detailed information about some of the difficult
+                animation and retargeting nodes: do they simply encompass existing
+                code? do they require to develop specific functionalities? It is also
+                difficult again to evaluate how the approach would generalize to novel
+                approaches that might be proposed in the future (i.e., what are the
+                entry costs for developing novel nodes?)
+
+    Finally, I think the proposed system also lacked in terms of evaluation of the
+                approach. The authors presented an interesting evaluation of the
+                overall latency of the system (actually concluding that disparities
+                exiting between devices in terms of buffering and decentralised
+                computing needs). However, I was wondering how the approach would be
+                evaluated potentially in terms of usability (is it simple to change
+                controlling modes in an application, how do you switch from using one
+                headset to another). This would seem important as it was unclear to me
+                whether this was something that should be done manually or whether it
+                was transparent to the user (especially seeing the manual change
+                suggested in Figure 5).
+
+    References also seem to be overall adequate, but I think that the following work
+                aiming at standardizing the use of avatars for VR applications would
+                be relevant:
+    Martınez, JL Pontón, E. Monclús Lahoya, and N. Pelechano Gómez. "Avatargo: plug
+                and play self-avatars for vr." The European Association for Computer
+                Graphics 43rd Annual Conference, EUROGRAPHICS 2022: Reims, France,
+                April 25-29, 2022: short papers. 2022.
+
+    To conclude, I think the framework presented is an interesting and well-developed
+                software, but with limited scientific novelty for the conference. It
+                would however fit well for a demo or poster.

@@ -1,0 +1,22 @@
+\section{CONFIGURING WORKFLOW}\label{sec:workflow}
+
+\subsection{Basic Pattern}
+
+Our modular structure supports practical configuration and improves reproducibility across heterogeneous XR deployments.
+{\bf Figure~\ref{fig:authoring}} illustrates the configuring workflow for a basic two-hand and upper body setup.
+Users first instantiate a Trigger Manager, register a Tracking Manager as a trigger, and configure the Tracking Manager’s device handlers. 
+For upper-body motion, they insert an upper-body regression node and connect the Tracking Manager output as its input through sender--receiver interface matching.
+They then bind retargeter nodes to both hand-tracking and upper-body outputs, and finally connect the retargeting stage to the target Motion Avatar format.
+Users can validate this process by iterating between Editor and Play mode. 
+This configured pipeline can be saved as the reusable preset.
+
+Through this uniform workflow, users do not need to manually resolve SDK interface differences when binding motion to a custom avatar. This consistent pattern supports the tracking devices listed in \textbf{Table~\ref{tab:sdk-support-list}}.
+
+\subsection{Extending the Authoring Pattern}
+The same authoring pattern extends to richer pipelines by inserting additional computational nodes between tracking and retargeting stages while preserving the same runtime contracts.
+{\bf Figure~\ref{fig:teaser}} shows representative pipeline configurations across heterogeneous XR devices for full-body avatar motion.
+With Meta SDK full-body tracking, the graph can be configured as a relatively direct path from tracking to retargeting.
+For resource-constrained devices, such as XREAL, selected computational nodes can be offloaded through network wrappers.
+With Vive physical tracker inputs, the graph can be composed with IK nodes to exploit richer tracking signals.
+
+

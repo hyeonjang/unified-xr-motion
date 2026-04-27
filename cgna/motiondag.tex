@@ -1,0 +1,70 @@
+\documentclass{IEEEcsmag}
+
+\usepackage[colorlinks,urlcolor=blue,linkcolor=blue,citecolor=blue]{hyperref}
+\expandafter\def\expandafter\UrlBreaks\expandafter{\UrlBreaks\do\/\do\*\do\-\do\~\do\'\do\"\do\-}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{threeparttable}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{listings}
+
+\graphicspath{{figures/}{pictures/}{images/}{./}}
+
+\jvol{XX}
+\jnum{XX}
+\paper{8}
+\jmonth{Month}
+\jname{Computer Society Magazine}
+\jtitle{MotionDAG: A Modular Motion Framework Design for Cross-Device and Humanoid XR Avatars}
+\pubyear{2026}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\setcounter{secnumdepth}{0}
+
+\begin{document}
+
+\sptitle{THEME: State of the Art in Computer Graphics and Applications in the Asia Pacific Region}
+\title{MotionDAG: A Modular Motion Framework\\ for Cross-Device and Humanoid XR Avatars}
+
+\author{Hyeonjang An}
+\affil{OXR Platform Research Center, Korea Institute of Science and Technology Information, Daejeon, 34141, Republic of Korea\\}
+
+\author{Janghun Kim}
+\affil{Immersive Media Research Section, Electronics and Telecommunications Research Institute, Daejeon, 34129, Republic of Korea\\}
+
+\author{Yuna Jeong}
+\affil{OXR Platform Research Center, Korea Institute of Science and Technology Information, Daejeon, 34141, Republic of Korea\\}
+
+\author{Hochul Lee}
+\affil{OXR Platform Research Center, Korea Institute of Science and Technology Information, Daejeon, 34141, Republic of Korea\\}
+
+\markboth{MOTIONDAG}{MOTIONDAG}
+
+\begin{abstract}
+\input{chapters/abstract}
+\end{abstract}
+
+\maketitle
+
+\input{chapters/introduction}
+\input{chapters/relatedwork}
+\input{chapters/systemdesign}
+\input{chapters/implementation}
+\input{chapters/workflow}
+\input{chapters/evaluation}
+\input{chapters/discussion}
+
+\section{ACKNOWLEDGMENT}
+This work was supported by the National Research Council of Science \& Technology (NST) grant by the Korea government (MSIT) (No.\ CRC21014). 
+This research utilized avatars and components from the UltimateXR framework (\url{https://github.com/VRMADA/ultimatexr-unity}) developed by VRMADA, which is distributed under the MIT License; from Mixamo (\url{https://www.mixamo.com}), distributed under the Adobe Standard Terms of Use; from SMPL-X (\url{https://smpl-x.is.tue.mpg.de}), released for research purposes under its specific license; and from Ready Player Me (\url{https://readyplayer.me}), used under its Avatar Creator Terms of Service.
+
+\section{CODE AVAILABILITY}
+Our source code will be released in a public GitHub repository upon acceptance.
+
+\bibliographystyle{abbrv-doi}
+\bibliography{motiondag}
+
+\end{document}

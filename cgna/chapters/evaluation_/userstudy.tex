@@ -1,0 +1,80 @@
+\subsection{User Study}\label{subsec:userstudy}
+
+Public XR SDKs differ substantially in their interfaces, including coordinate-frame conventions, joint layouts, and tightly coupled retargeting logic. These differences often require component-specific adjustments and fragmented setup procedures, increasing integration burden during avatar authoring.
+To assess whether a unified authoring pattern mitigates these challenges, we conducted a controlled user study comparing MotionDAG with a public SDK baseline. We hypothesized that MotionDAG’s consistent authoring abstraction would reduce in-editor configuration time and improve perceived usability and workload.
+The co-primary endpoints were total in-editor configuration time ($T_{\mathrm{cfg}}$), System Usability Scale (SUS)~\cite{brooke1996sus}, and unweighted NASA Task Load Index (NASA--TLX)~\cite{hart1988nasa_tlx}.
+
+\subsubsection{Participants and Study Design}
+We recruited nineteen participants ($N = 19$) with varying levels of XR and Unity development experience. On 5-point Likert scales, mean self-reported experience was 3.21 for programming and 2.84 for XR and game-engine graphics, indicating intermediate proficiency. 
+All participants provided informed consent and were compensated.
+
+The study employed a within-subjects design comparing two SDK conditions: \textbf{SDK~A} (MotionDAG) and \textbf{SDK~B} (public baseline). Participants completed equivalent authoring tasks in both conditions to reproduce predefined reference motions in a desktop XR simulator. 
+The tasks included (1) \textit{Custom-Hands}, configuring hand tracking for custom meshes, and (2) \textit{Full-Body}, configuring full-body tracking and retargeting for an avatar.
+Participants iterated between editor-side authoring and Unity Play-mode validation until outputs matched the provided reference clips.
+
+In SDK~A, participants configured the pipeline by connecting interface-compatible components. 
+In SDK~B, participants first configured the Meta Core SDK hand-tracking setup (including synthetic and custom hand visual configuration) for hand tracking.
+They then enabled full-body tracking through \texttt{Movement SDK} by configuring body-tracking settings and completing the retargeting setup for the avatar.
+To eliminate confounding effect from build and deployment latency, all trials were conducted in a controlled desktop XR simulator environment.
+
+Sessions were performed on identical Windows~11 desktops (dual monitors, keyboard, mouse) in a lab setting.
+Unity was version-locked to \texttt{6000.0.33f1}.
+Two SDK configurations were installed: \textbf{SDK~A}, our MotionDAG integration layer, and \textbf{SDK~B}, the public SDK baseline (Meta Core SDK + \texttt{Movement SDK}) at version \texttt{78.0.0}. 
+Both conditions were executed under the identical Meta desktop XR simulator.
+
+\subsubsection{Procedure and Measures}\label{subsubsec:procedure-meature}
+After informed consent and a brief demographics questionnaire ($\approx$10 min), participants received a scripted orientation and completed one unlogged practice trial. 
+They then performed two counterbalanced conditions (SDK~A and SDK~B; AB/BA order), each comprising the \textit{Custom-Hands} and \textit{Full-Body} configurations. 
+Optimization or step skipping was prohibited, and ambiguities were reported immediately. 
+After each condition, SUS and NASA--TLX were administered.
+
+To ensure equivalent task targets in the \textit{Custom-Hands} configuration, steps unrelated to interface authoring were completed prior to timing. 
+In SDK~B, achieving the reference hand-retargeting quality required manual axis-weight tuning; this calibration was treated as a pre-task adjustment and excluded from $T_{\mathrm{cfg}}$ so that comparisons reflected interface-authoring effort. 
+This exclusion is conservative for SDK~A because it removes a required SDK~B operation from the timed metric.
+
+Configuration time ($T_{\mathrm{cfg}}$) was the total in-editor configuration time per SDK, starting at the first required authoring action and ending when both configurations passed execution verification; logging was automated inside Unity. 
+
+Subjective assessments used SUS (0--100 with adjective ratings) and unweighted NASA--TLX. 
+For NASA--TLX aggregation, higher values consistently indicate higher workload. 
+Co-primary inference on $T_{\mathrm{cfg}}$, SUS, and NASA--TLX used two-sided paired tests with family-wise error controlled at $\alpha{=}0.05$ via Holm--Bonferroni correction. 
+We report means~$\pm$~SD, 95\% CIs for paired mean differences, exact $p$ values, and Hedges’ $g_{\mathrm{av}}$~\cite{lakens2013,morris2002}. 
+
+\begin{table}[t]
+\setlength{\tabcolsep}{0.45\tabcolsep}
+\renewcommand{\arraystretch}{1.75}
+\scriptsize
+\centering
+\caption{Results of the controlled within-subject study comparing MotionDAG (SDK~A) and the public SDK baseline (SDK~B). 
+Metrics include total configuration time ($T_{\mathrm{cfg}}$), System Usability Scale (SUS), and NASA--TLX workload. Values are reported as mean $\pm$ standard deviation.}
+\label{tab:userstudy-results}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}>{\raggedright\arraybackslash} p{29pt} rrr@{}}
+\toprule
+Statistic & $T_{\mathrm{cfg}}$ (s) & NASA--TLX & SUS \\
+\midrule
+SDK~A ($M\!\pm\!SD$) & $564.03\!\pm\!176.58$ & $30.53\!\pm\!17.55$ & $73.42\!\pm\!17.08$ \\
+SDK~B ($M\!\pm\!SD$) & $972.89\!\pm\!243.36$ & $49.74\!\pm\!18.29$ & $34.47\!\pm\!13.91$ \\
+95\% CI ($A{-}B$) & $[-493.25,\,-324.48]$ & $[-24.87,\,-13.55]$ & $[28.69,\,49.21]$ \\
+$t(df)$ & $-10.18\,(18)$ & $-7.13\,(18)$ & $7.98\,(18)$ \\
+$p$ & $<.0001$ & $<.0001$ & $<.0001$ \\
+$d$ & $-1.84$ & $-1.03$ & $+2.39$ \\
+\bottomrule
+\multicolumn{4}{@{}p{\columnwidth}@{}}{$^{\mathrm{a}}$CI = confidence interval; $d$ = Hedges' $g_{\mathrm{av}}$ effect size. CIs, $t$, $p$, and $d$ are computed on paired differences (SDK~A $-$ SDK~B).}
+\end{tabular*}
+\end{table}
+
+
+\subsubsection{Results}
+\textbf{Table~\ref{tab:userstudy-results}} summarizes descriptive and inferential statistics.
+Across all co-primary endpoints, SDK~A outperformed SDK~B, yielding lower configuration time ($T_{\mathrm{cfg}}$), lower NASA--TLX workload, and higher SUS scores.
+All co-primary effects remained significant after Holm--Bonferroni correction.
+
+As noted in \hyperref[subsubsec:procedure-meature]{Procedure and Measures}, SDK~B required an additional manual axis-weight calibration step for practical deployment. 
+This step was excluded from $T_{\mathrm{cfg}}$ to preserve interface-level comparability; thus, the reported time difference represents a conservative estimate of practical setup overhead. MotionDAG therefore exceeded the 68-point ``Good'' SUS benchmark~\cite{bangor2009sus_adjective} whereas the baseline remained ``Poor.'' 
+
+Order effects were assessed by computing within-subject differences ($\Delta{=}A{-}B$) and comparing sequence groups (AB vs.\ BA) using Welch's $t$-tests.
+Sequence sensitivity was observed for configuration time ($t(16.94)=3.32$, $p=.0040$; mean $\Delta T_{\mathrm{cfg}}=-307.6$~s for AB and $-521.4$~s for BA), but not for NASA--TLX ($t(16.10)=-0.31$, $p=.763$) or SUS ($t(16.99)=1.53$, $p=.145$).
+
+In this controlled study, MotionDAG improved authoring efficiency and perceived usability relative to the industry-representative baseline. 
+The reduction in configuration time and workload suggests lower integration effort under equivalent task targets. 
+While sequence effects influenced the magnitude of the time benefit, usability and workload improvements were robust across orders.
+These findings support the role of a unified, interface-driven graph abstraction in reducing SDK-specific integration complexity during XR avatar authoring.

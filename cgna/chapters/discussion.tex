@@ -1,0 +1,20 @@
+\section{CONCLUSION}
+\label{sec:discussionandconclusion}
+
+This paper presented MotionDAG, a modular runtime framework that targets vendor-agnostic motion pipelines.
+Our results show that event-driven, DAG-based motion processing can effectively adapt across the scenarios, integrating diverse XR hardware and personalized humanoid avatars.
+
+We demonstrated three main contributions.
+First, our DAG design enables flexible pipeline composition through interface-driven Motion Nodes, allowing users to scale from hand tracking to full-body embodiment without code changes and to adapt pipelines to specific device configurations.
+Second, the consistent, asset-driven authoring workflow improved authoring efficiency: participants completed configuration faster, reported lower NASA--TLX workload, and achieved SUS scores in the ``Good'' range, suggesting reduced day-to-day integration burden across devices.
+Third, network offloading extends support for resource-constrained devices without modifying core graph semantics.
+Because performance gains depend on network conditions and workload characteristics, deployments should re-profile latency percentiles in situ and retain an on-device fallback path to avoid tail-latency degradation under network impairment.
+Overall, MotionDAG is well suited to XR deployments spanning heterogeneous XR devices and avatar rigs, where tracking modalities and retargeting pipelines need to be swapped or extended without code refactoring.
+
+Despite its benefits, MotionDAG has limitations that invite further research.
+While the framework is designed to provide a consistent interface across platforms, our current evaluation focuses on in-editor authoring UX under a desktop XR simulator setting (excluding build and deploy time) and isolates interface-authoring effort; outcomes may differ in end-to-end HMD deployment workflows that include device-specific calibration and iteration overhead.
+Extending evaluation to more complex XR deployments remains an important direction for future work, particularly to assess the impact of the consistent authoring pattern on practical outcomes.
+
+In addition, the current system could be extended with automatic configuration and motion-pipeline presets conditioned on hardware profiles, tracking modalities, and target avatar representations. We expect these extensions to further improve usability.
+Algorithmically, our current implementation mainly integrates and extends existing motion-completion methods rather than proposing a new core estimator. The framework would benefit from systematic integration of state-of-the-art pose-estimation approaches, including recent transformer-based and physics-informed models. 
+Coordinating heterogeneous methods within a single pipeline remains an open challenge for future development.

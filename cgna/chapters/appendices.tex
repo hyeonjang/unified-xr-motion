@@ -1,0 +1,69 @@
+\subsection{Appendix A}\label{sec:appendix-code}
+
+{\bf Listing~\ref{lst:sample-commute}} shows the interface-level sender-receiver
+pattern used for event-driven node communication.
+\begin{lstlisting}[style=csharpstyle,caption={Interface-level sender-receiver pattern for event-driven node communication.},label={lst:sample-commute}]
+public sealed class SampleCommute :
+    IMotionSender, IMotionReceiver {
+    // Receiver: set input motion
+    public IMotionSender Input;
+    public event IMotionSender.Update OnUpdate;
+
+    private void OnEnable() {
+        // Receiver: subscribe input motion
+        Input.OnUpdate += RegisterUpdate;
+    }
+
+    private void OnDisable() {
+        // Receiver: unsubscribe input motion
+        Input.OnUpdate -= RegisterUpdate;
+    }
+
+    public void RegisterUpdate(IMotionNode _) {
+        // Sender: invoke the signal to subscribers
+        OnUpdate?.Invoke(this);
+    }
+}
+\end{lstlisting}
+
+{\bf Listing~\ref{lst:custom-node-listing}} shows an abridged custom-node runtime
+example.
+\begin{lstlisting}[style=csharpstyle,caption={Abridged custom-node runtime example.},label={lst:custom-node-listing}]
+public sealed class CustomBodyCCD :
+    IMotionSender, IMotionReceiver, IBufferView {
+
+    // Subscribers access motion data through a shared view.
+    public BufferView View => _bodyBuffer.View;
+    public event IMotionSender.Update OnUpdate;
+    private readonly FullBodyBuffer<PhysicBone> _bodyBuffer = new();
+
+    public void RegisterUpdate(IMotionNode _) {
+        // Apply custom logic on the body slice.
+        for (int i = 0; i < Length; i++)
+            DoCcd(_bodyBuffer.UpperBodyView[i]);
+
+        // Publish the result to downstream subscribers.
+        OnUpdate?.Invoke(this);
+    }
+
+    /* Custom CCD solve */
+    private void DoCcd(PhysicBone joint) {}
+}
+\end{lstlisting}
+
+\subsection{Appendix B}\label{sec:appendix-userstudy-instrument}
+Raw participant-experience items were collected in Korean from
+\texttt{figures/userstudy/rawdata.xlsx}. We report the original wording below,
+with English glosses for reproducibility:
+
+\begin{itemize}
+    \item \textbf{Programming experience (Korean):}
+    ``프로그래밍에 대한 관련 경험 수준은 어느정도 입니까?''
+    \textbf{(English gloss):} ``What is your level of relevant programming experience?''
+    \item \textbf{Game-engine/XR graphics experience (Korean):}
+    ``게임 엔진 (예: Unity, Unreal 등), VR 및 3D 그래픽스 프로그래밍 관련 경험 수준은 어느 정도입니까?''
+    \textbf{(English gloss):} ``What is your level of experience with game engines
+    (e.g., Unity, Unreal) and VR/3D graphics programming?''
+\end{itemize}
+
+Both items used a 5-point ordinal self-report scale (1: low, 5: high).

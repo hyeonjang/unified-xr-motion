@@ -1,0 +1,28 @@
+\subsection{Computational Methods for Motion Processing}
+\label{sec:computationalnode}
+
+To transform irregular and sparse tracking data from upstream sources into complete motion, our system uses a series of optional computational nodes that combine multiple computational methods.
+Variation in hardware design, tracking availability, and computational resources across XR platforms necessitates different computational strategies for different deployment contexts.
+When rich IMU data are available, IK is often sufficient to reconstruct full-body poses; with only root motion, keyframe-based methods can generate plausible and consistent animation; and for highly sparse inputs (e.g., HMD with controllers), regression-based techniques are typically required.
+Our system exposes several computational node options, allowing developers to produce the desired motion output.
+Each node adopts a specific motion processing technique designed to enhance the pose information provided by the upstream tracking sources.
+
+\subsubsection{Inverse Kinematics Nodes}
+Adapting from well-known real-time heuristic solvers~\cite{aristidou2011fabrik}, our system provides motion nodes to solve IK for each body segment.
+Integrated into the Motion Node DAG, each IK node infers unobserved joint states to complement natural motion while preserving kinematic consistency.
+
+% setting and precomputing
+Since solving patterns are similar across body regions, each solver is structured around region-specific kinematic chains based on the abstract solver class.
+The solver gathers region-specific chains (e.g., spine, arms, and legs) from the common joint layout, precomputes the required kinematic information once during setup, and on each update selects active chains and solves them against the current targets.
+Specifically, for multi-joint axial chains such as the spine, the IK node uses the FABRIK~\cite{aristidou2011fabrik} method to stabilize the iterative pose.
+For limbs (arms and legs), a two-bone hinge IK with an explicit bend plane is used to satisfy the anatomical constraints.
+As intermediate nodes to process motion data, the IK nodes subscribe to upstream pose targets from the publishers (e.g., end-effector positions from tracking information or estimations), solve the joint locations and write them to the referenced Kinematic Buffer, then propagate solved joint configurations downstream in an \emph{event-driven} manner.
+% effect and applicable points
+Because the IK node reads and writes in the same standardized buffer format, it can refine regression outputs or directly process sparse tracking into a full-body pose, and multiple IK regions can run in parallel before feeding into the retargeting and animation stages.
+
+\subsubsection{Machine Learning--Based Motion Processing}
+We build on the Categorical Codebook Matching controller of Starke et al.~\cite{starke2024categorical}, which combines motion matching with latent embeddings for short sequence retrieval.
+Our implementation preserves the original three-stage structure but splits each stage into reusable motion nodes that run Unity Inference Engine models and write directly into their KinematicBuffer targets.
+
+The upper body node reconstructs and predicts root and torso joints from head and wrist targets, the lower body node blends kNN-retrieved sequences conditioned on those predictions, and the fusion node selects a tracking-aware or agnostic model to output the final pose.
+Together they replicate Starke et al.~\cite{starke2024categorical} while remaining modular for other motion tasks.
