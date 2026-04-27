@@ -1,0 +1,97 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\providecommand{\doi}[1]{https://doi.org/#1}
+
+\bibitem{aristidou2011fabrik}
+Aristidou, A., Lasenby, J.: {FABRIK}: A fast, iterative solver for the inverse
+  kinematics problem. Graphical Models  \textbf{73}(5),  243--260 (2011)
+
+\bibitem{cheymol2023beyond}
+Cheymol, A., Fribourg, R., L{\'e}cuyer, A., Normand, J.M., Argelaguet, F.:
+  Beyond my real body: Characterization, impacts, applications and perspectives
+  of ``dissimilar'' avatars in virtual reality. IEEE Transactions on
+  Visualization and Computer Graphics  \textbf{29}(11),  4426--4437 (2023)
+
+\bibitem{dai2024hmd}
+Dai, P., Zhang, Y., Liu, T., Fan, Z., Du, T., Su, Z., Zheng, X., Li, Z.:
+  {HMD-Poser}: On-device real-time human motion tracking from scalable sparse
+  observations. In: Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR). pp. 874--884 (2024)
+
+\bibitem{gao2025xrgo}
+Gao, S., Liu, J., Jiang, Q., Sinclair, F., Sentosa, W., Godfrey, P.B., Adve,
+  S.V.: {XRgo}: Design and evaluation of rendering offload for low-power
+  extended reality devices. In: Proceedings of the ACM Multimedia Systems
+  Conference (2025)
+
+\bibitem{jiang2022avatarposer}
+Jiang, J., Streli, P., Qiu, H., Fender, A., Laich, L., Snape, P., Holz, C.:
+  {AvatarPoser}: Articulated full-body pose tracking from sparse motion
+  sensing. In: Computer Vision -- ECCV 2022. Lecture Notes in Computer Science,
+  vol. 13665, pp. 443--460. Springer (2022).
+  \doi{10.1007/978-3-031-20065-6_26},
+  \url{https://link.springer.com/chapter/10.1007/978-3-031-20065-6_26}
+
+\bibitem{khronos_openxr_1_0}
+{Khronos Group}: Khronos releases {OpenXR} 1.0 specification.
+  \url{https://www.khronos.org/news/permalink/khronos-releases-openxr-1.0-specification}
+  (2019), press release
+
+\bibitem{openxr_ext_hand}
+{Khronos Group}: {XR}\_{EXT}\_hand\_tracking.
+  \url{https://registry.khronos.org/OpenXR/specs/1.1/man/html/XR_EXT_hand_tracking.html}
+  (2025)
+
+\bibitem{newman2004ubiquitous}
+Newman, J., Wagner, M., Bauer, M., MacWilliams, A., Pintaric, T., Beyer, D.,
+  Pustka, D., Strasser, F., Schmalstieg, D., Klinker, G.: Ubiquitous tracking
+  for augmented reality. In: Proceedings of the 3rd IEEE and ACM International
+  Symposium on Mixed and Augmented Reality. pp. 192--201. IEEE Computer Society
+  (2004)
+
+\bibitem{ponton2022avatargo}
+Ponton, J.L., Moncl{\'u}s, E., Pelechano, N.: {AvatarGo}: Plug and play
+  self-avatars for {VR}. In: Eurographics 2022 -- Short Papers. pp. 77--80. The
+  Eurographics Association (2022). \doi{10.2312/egs.20221037}
+
+\bibitem{reitmayr2001openarchitecture}
+Reitmayr, G., Schmalstieg, D.: An open software architecture for virtual
+  reality interaction. In: Proceedings of the ACM Symposium on Virtual Reality
+  Software and Technology. ACM (2001)
+
+\bibitem{starke2024categorical}
+Starke, S., Starke, P., He, N., Komura, T., Ye, Y.: Categorical codebook
+  matching for embodied character controllers. ACM Transactions on Graphics
+  \textbf{43}(4),  142:1--142:14 (2024). \doi{10.1145/3658209}
+
+\bibitem{taylor2001vrpn}
+Taylor, R.M., Hudson, T.C., Seeger, A., Weber, H., Juliano, J., Helser, A.T.:
+  {VRPN}: A device-independent, network-transparent {VR} peripheral system. In:
+  Proceedings of the ACM Symposium on Virtual Reality Software and Technology.
+  ACM (2001)
+
+\bibitem{weidner2023avatarsagents}
+Weidner, F., Boettcher, G., Arevalo~Arboleda, S., Diao, C., Sinani, L., Kunert,
+  C., Gerhardt, C., Broll, W., Raake, A.: A systematic review on the
+  visualization of avatars and agents in {AR} \& {VR} displayed using
+  head-mounted displays. IEEE Transactions on Visualization and Computer
+  Graphics  \textbf{29}(5),  2596--2606 (2023). \doi{10.1109/TVCG.2023.3247072}
+
+\bibitem{xu2024mobileposer}
+Xu, V., Gao, C., Hoffmann, H., Ahuja, K.: {MobilePoser}: Real-time full-body
+  pose estimation and {3D} human translation from imus in mobile consumer
+  devices. In: Proceedings of the 37th Annual ACM Symposium on User Interface
+  Software and Technology (UIST). pp. 1--11 (2024)
+
+\bibitem{yang2024divatrack}
+Yang, D., Kang, J., Ma, L., Greer, J.D., Ye, Y., Lee, S.H.: {DivaTrack}:
+  Diverse bodies and motions from acceleration-enhanced three-point trackers.
+  Computer Graphics Forum  \textbf{43}(2) (2024). \doi{10.1111/cgf.15057}
+
+\bibitem{yun2023animationfidelity}
+Yun, H., Ponton, J.L., Andujar, C., Pelechano, N.: Animation fidelity in
+  self-avatars: Impact on user performance and sense of agency. IEEE
+  Transactions on Visualization and Computer Graphics  (2023)
+
+\end{thebibliography}
