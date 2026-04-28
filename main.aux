@@ -1,13 +1,13 @@
 \relax 
-\citation{khronos_openxr_1_0,openxr_ext_hand}
-\citation{taylor2001vrpn}
-\citation{reitmayr2001openarchitecture}
-\citation{newman2004ubiquitous}
 \@writefile{toc}{\contentsline {title}{UnifiedXRMotion: A Schema-Based Motion-Data Contract for Heterogeneous XR Avatar Pipelines}{1}{}\protected@file@percent }
 \@writefile{toc}{\authcount {1}}
 \@writefile{toc}{\contentsline {author}{Anonymous Authors}{1}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{}\protected@file@percent }
 \newlabel{sec:introduction}{{1}{1}{}{section.1}{}}
+\citation{khronos_openxr_1_0,openxr_ext_hand}
+\citation{taylor2001vrpn}
+\citation{reitmayr2001openarchitecture}
+\citation{newman2004ubiquitous}
 \citation{taylor2001vrpn}
 \citation{reitmayr2001openarchitecture}
 \citation{newman2004ubiquitous}
@@ -22,69 +22,69 @@
 \@writefile{toc}{\contentsline {paragraph}{XR APIs, avatar motion, and offloading.}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3}Schema-Based Motion-Data Contract}{3}{}\protected@file@percent }
 \newlabel{sec:contract}{{3}{3}{}{section.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Motion-data contract. A schema defines addressable slots and parent relations; trackers publish partial pose records; binary validity flags identify which components are present; buffer views and serialization expose the same contract to runtime nodes and network transport.}}{4}{}\protected@file@percent }
-\newlabel{fig:contract}{{1}{4}{}{figure.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Adapter boundary. Native tracking sources remain SDK-specific, but each adapter maps observed data into the same schema-based motion contract.}}{4}{}\protected@file@percent }
-\newlabel{fig:adapters}{{2}{4}{}{figure.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Adapter Boundary}{4}{}\protected@file@percent }
-\newlabel{sec:adapters}{{4}{4}{}{section.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Motion contract concepts. The prototype instantiation is evidence of implementation scope, not the conceptual boundary of the contract.}}{5}{}\protected@file@percent }
-\newlabel{tab:contract}{{1}{5}{}{table.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Actual runtime model. UnifiedXRMotion uses trigger-based scheduling and sender/receiver event propagation over a shared motion contract. It should not be interpreted as a general DAG execution engine.}}{5}{}\protected@file@percent }
-\newlabel{fig:runtime}{{3}{5}{}{figure.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Runtime and Local/Remote Node Placement}{5}{}\protected@file@percent }
-\newlabel{sec:runtime}{{5}{5}{}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Contract Definition and Invariants}{3}{}\protected@file@percent }
+\newlabel{sec:contract-formal}{{3.1}{3}{}{subsection.3.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Contract invariants used by adapters, consumers, and network wrappers. These are design constraints of the runtime contract, not claims of universal device support.}}{4}{}\protected@file@percent }
+\newlabel{tab:contract-invariants}{{1}{4}{}{table.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Prototype buffer and region-view instantiation of the schema-based motion-data contract. The figure illustrates how a concrete full-body layout is exposed through buffer views for downstream nodes. The slot count shown in the prototype is an implementation example, not a universal skeleton standard or the conceptual contribution.}}{5}{}\protected@file@percent }
+\newlabel{fig:contract}{{1}{5}{}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Adapter boundary. Native tracking sources remain SDK-specific, but each adapter maps observed data into the same schema-based motion contract.}}{5}{}\protected@file@percent }
+\newlabel{fig:adapters}{{2}{5}{}{figure.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Adapter Boundary}{5}{}\protected@file@percent }
+\newlabel{sec:adapters}{{4}{5}{}{section.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Motion contract concepts. The prototype instantiation is evidence of implementation scope, not the conceptual boundary of the contract.}}{6}{}\protected@file@percent }
+\newlabel{tab:contract}{{2}{6}{}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Actual runtime model. UnifiedXRMotion uses trigger-based scheduling and sender/receiver event propagation over a shared motion contract. It should not be interpreted as a general DAG execution engine.}}{6}{}\protected@file@percent }
+\newlabel{fig:runtime}{{3}{6}{}{figure.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Runtime and Local/Remote Node Placement}{6}{}\protected@file@percent }
+\newlabel{sec:runtime}{{5}{6}{}{section.5}{}}
 \citation{aristidou2011fabrik}
 \citation{starke2024categorical}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Prototype adapter matrix. The table reports implementation coverage, not equal experimental validation.}}{6}{}\protected@file@percent }
-\newlabel{tab:adapters}{{2}{6}{}{table.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Implementation}{6}{}\protected@file@percent }
-\newlabel{sec:implementation}{{6}{6}{}{section.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Four placement states exposed by the local/remote node wrapper. The same node implementation can be wrapped for different execution contexts, but output equivalence and latency effects must be measured separately.}}{7}{}\protected@file@percent }
-\newlabel{fig:placement}{{4}{7}{}{figure.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Latency metric definition. The safe metric is useful for runtime debugging but must not be renamed as input-to-photon latency.}}{7}{}\protected@file@percent }
-\newlabel{tab:latency-definition}{{3}{7}{}{table.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Evaluation and Case Study Evidence}{7}{}\protected@file@percent }
-\newlabel{sec:evaluation}{{7}{7}{}{section.7}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Original-vs-wrapper boundary. This table states what the paper can safely claim and what it must not claim.}}{8}{}\protected@file@percent }
-\newlabel{tab:orig-wrapper}{{4}{8}{}{table.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Contract and Adapter Coverage}{8}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Authoring Case Study: Setup Burden}{8}{}\protected@file@percent }
-\newlabel{sec:userstudy}{{7.2}{8}{}{subsection.7.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Task-equivalence summary for the authoring case study. SDK A corresponds to UnifiedXRMotion; SDK B corresponds to the vendor SDK workflow.}}{9}{}\protected@file@percent }
-\newlabel{tab:task-equivalence}{{5}{9}{}{table.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Within-subjects setup-burden results ($N=19$). Completion time is interpreted as procedural setup burden because participants were told to prioritize correctness and completion rather than speed.}}{10}{}\protected@file@percent }
-\newlabel{tab:user-results}{{6}{10}{}{table.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Case Study: Local and Remote Motion-Node Placement}{10}{}\protected@file@percent }
-\newlabel{sec:placement-case}{{7.3}{10}{}{subsection.7.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Application-level motion-pipeline latency under local and remote node-placement configurations. Each condition is a trace, not an independent repeated-run distribution.}}{10}{}\protected@file@percent }
-\newlabel{tab:latency-summary}{{7}{10}{}{table.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Discussion}{11}{}\protected@file@percent }
-\newlabel{sec:discussion}{{8}{11}{}{section.8}{}}
-\@writefile{toc}{\contentsline {paragraph}{Why a motion contract paper is defensible.}{11}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{What the abstraction enables.}{11}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Where the abstraction is still weak.}{11}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Local/remote placement remains structural.}{11}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {9}Limitations}{11}{}\protected@file@percent }
-\newlabel{sec:limitations}{{9}{11}{}{section.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Prototype adapter matrix. The table reports implementation coverage, not equal experimental validation.}}{7}{}\protected@file@percent }
+\newlabel{tab:adapters}{{3}{7}{}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Implementation}{7}{}\protected@file@percent }
+\newlabel{sec:implementation}{{6}{7}{}{section.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Local/remote node-placement abstraction in the prototype. The same class of motion-node pipeline can be configured for local or remote execution contexts through a wrapper. The figure illustrates a placement mechanism, not deterministic equivalence or a general latency-improvement claim.}}{8}{}\protected@file@percent }
+\newlabel{fig:placement}{{4}{8}{}{figure.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Representative Consumer: Retargeting Through Contract Views}{8}{}\protected@file@percent }
+\newlabel{sec:retarget-consumer}{{6.1}{8}{}{subsection.6.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Evaluation and Case Study Evidence}{9}{}\protected@file@percent }
+\newlabel{sec:evaluation}{{7}{9}{}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Contract and Adapter Coverage}{9}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Representative retargeting consumers reading from contract views and writing to heterogeneous avatar rigs. The figure illustrates consumption of the shared motion contract, not a new retargeting algorithm.}}{10}{}\protected@file@percent }
+\newlabel{fig:retarget-consumer}{{5}{10}{}{figure.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Authoring Case Study: Setup Burden}{10}{}\protected@file@percent }
+\newlabel{sec:userstudy}{{7.2}{10}{}{subsection.7.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Representative setup workflow used in the authoring case study. The figure is used to clarify the procedural configuration burden measured by the study; it is not a general proof of developer productivity or long-term maintainability.}}{11}{}\protected@file@percent }
+\newlabel{fig:configure-workflow}{{6}{11}{}{figure.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Task-equivalence summary for the authoring case study. SDK A corresponds to UnifiedXRMotion; SDK B corresponds to the vendor SDK workflow.}}{11}{}\protected@file@percent }
+\newlabel{tab:task-equivalence}{{8}{11}{}{table.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Within-subjects setup-burden results ($N=19$). Values are mean $\pm $ standard deviation. NASA--TLX is the 0--100 workload score after reversing the performance subscale so that higher values consistently indicate higher workload. Completion time is interpreted as procedural setup burden because participants prioritized correctness and completion rather than speed.}}{12}{}\protected@file@percent }
+\newlabel{tab:user-results}{{9}{12}{}{table.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Case Study: Local and Remote Motion-Node Placement}{12}{}\protected@file@percent }
+\newlabel{sec:placement-case}{{7.3}{12}{}{subsection.7.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Application-level motion-pipeline latency traces under local and remote node-placement configurations. The plots characterize runtime behavior exposed by the placement abstraction and exclude tracker capture, SDK-internal sampling, compositor scheduling, display scan-out, and photon emission. They should not be interpreted as input-to-photon measurements or vendor-native baselines.}}{13}{}\protected@file@percent }
+\newlabel{fig:latency-placement}{{7}{13}{}{figure.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Application-level motion-pipeline latency under local and remote node-placement configurations. Each condition is a trace, not an independent repeated-run distribution.}}{13}{}\protected@file@percent }
+\newlabel{tab:latency-summary}{{10}{13}{}{table.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Discussion}{14}{}\protected@file@percent }
+\newlabel{sec:discussion}{{8}{14}{}{section.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Why a motion contract is the research object.}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{What the abstraction enables.}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Where the abstraction is still weak.}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Local/remote placement remains structural.}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Limitations}{14}{}\protected@file@percent }
+\newlabel{sec:limitations}{{9}{14}{}{section.9}{}}
 \bibstyle{splncs04}
 \bibdata{bib/references}
-\bibcite{aristidou2011fabrik}{1}
-\bibcite{cheymol2023beyond}{2}
-\bibcite{dai2024hmd}{3}
-\bibcite{gao2025xrgo}{4}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusion}{12}{}\protected@file@percent }
-\newlabel{sec:conclusion}{{10}{12}{}{section.10}{}}
-\bibcite{jiang2022avatarposer}{5}
-\bibcite{khronos_openxr_1_0}{6}
-\bibcite{openxr_ext_hand}{7}
-\bibcite{newman2004ubiquitous}{8}
-\bibcite{ponton2022avatargo}{9}
-\bibcite{reitmayr2001openarchitecture}{10}
-\bibcite{starke2024categorical}{11}
-\bibcite{taylor2001vrpn}{12}
-\bibcite{weidner2023avatarsagents}{13}
-\bibcite{xu2024mobileposer}{14}
-\bibcite{yang2024divatrack}{15}
-\bibcite{yun2023animationfidelity}{16}
-\gdef \@abspage@last{13}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusion}{15}{}\protected@file@percent }
+\newlabel{sec:conclusion}{{10}{15}{}{section.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Examples of source-specific coordinate and data-format differences handled at the adapter boundary. The table is implementation evidence for localization of heterogeneity, not a claim of new tracking.}}{16}{}\protected@file@percent }
+\newlabel{tab:sdk-mapping}{{4}{16}{}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Same-consumer, different-source evidence. The goal is to show that source-specific logic is localized at the adapter boundary while downstream consumers reuse contract views.}}{17}{}\protected@file@percent }
+\newlabel{tab:same-consumer}{{5}{17}{}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Latency metric definition. The safe metric is useful for runtime debugging but must not be renamed as input-to-photon latency.}}{18}{}\protected@file@percent }
+\newlabel{tab:latency-definition}{{6}{18}{}{table.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Original-vs-wrapper boundary. This table states what the paper can safely claim and what it must not claim.}}{18}{}\protected@file@percent }
+\newlabel{tab:orig-wrapper}{{7}{18}{}{table.7}{}}
+\gdef \@abspage@last{18}
