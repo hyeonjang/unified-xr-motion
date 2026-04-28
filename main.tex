@@ -33,7 +33,7 @@
 \maketitle
 
 \begin{abstract}
-XR avatar-motion pipelines must combine tracking streams whose joint layouts, coordinate conventions, body coverage, validity semantics, and deployment locations differ across SDKs and devices. This heterogeneity makes it difficult to reuse the same filters, estimators, retargeters, and network wrappers when replacing a headset, adding a hand tracker, integrating a vision-based source, or moving computation between client and server. We present UnifiedXRMotion, a Unity-based prototype organized around a schema-based, validity-aware motion-data contract for heterogeneous XR avatar pipelines. The contract represents skeletal motion as addressable motion slots defined by an application schema rather than by a fixed avatar rig or a vendor SDK. Each slot stores optional pose components guarded by component-level validity flags, allowing partial trackers to publish only what they observe and allowing downstream consumers to operate over shared schema views instead of SDK-specific outputs. The prototype instantiates the contract with a 77-slot full-body schema and implements adapters for selected XR and vision-based sources, representative motion-processing consumers, and a structural local/remote node-placement wrapper. We evaluate the design through implementation coverage, adapter-mapping evidence, a within-subjects authoring case study, and application-level placement traces. The contribution is not a new tracker, IK solver, retargeting algorithm, or input-to-photon measurement; it is a concrete runtime contract and abstraction boundary for composing partial skeletal motion across heterogeneous XR avatar-motion pipelines.
+XR avatar-motion pipelines often combine sources that differ in joint layout, coordinate convention, body coverage, component availability, and deployment location. Reusing filters, estimators, retargeters, replay utilities, and network transport becomes difficult when these source-specific assumptions leak into downstream nodes. We present UnifiedXRMotion, a Unity prototype organized around a schema-based runtime contract for partial skeletal motion. A schema defines stable motion-slot identities and region views; each slot stores optional pose components with component-level validity. SDK and vision adapters normalize native observations into this contract, allowing downstream nodes to consume shared schema views instead of vendor-specific records. The prototype instantiates the contract with a 77-slot full-body schema, selected XR and vision adapters, representative consumers for filtering, retargeting, replay, and transport, and a structural local/remote placement wrapper. Evaluation combines implementation coverage, adapter-mapping evidence, a within-subjects setup-burden case study, and application-level motion-pipeline traces. The evidence supports a narrow systems contribution: a concrete contract and adapter boundary for composing heterogeneous partial-motion sources in XR avatar pipelines.
 \keywords{Extended reality \and Avatar motion \and Tracking middleware \and Motion-data contract \and Runtime systems \and Local/remote execution}
 \end{abstract}
 
@@ -44,11 +44,12 @@ Existing XR APIs and tracking middleware address important parts of this problem
 
 The central design choice is to separate \emph{slot identity} from \emph{tracking availability}. A skeleton schema defines addressable motion slots and parent relations; a tracker publishes the subset it observes; each pose component is guarded by a validity flag; and downstream nodes consume only the components they require. This makes source-specific coordinate and validity semantics an adapter concern, while consumers operate over schema views rather than vendor SDK outputs. In our Unity prototype, this contract is instantiated with a 77-slot full-body schema covering torso, limbs, head, and articulated hands. The slot count is one prototype schema instantiation, not a universal skeleton standard. The same contract can be instantiated with smaller or larger schemas when adapters and consumers agree on the schema.
 
-We make three contributions:
+This paper makes four contributions:
 \begin{itemize}
-    \item \textbf{A schema-based, validity-aware motion-data contract} for XR skeletal motion, including addressable motion slots, parent relations, region views, optional pose components, binary validity flags, in-process buffer views, and validity-aware serialization.
-    \item \textbf{An adapter boundary for heterogeneous tracking sources} that maps SDK-specific outputs into the shared contract. The prototype includes adapters for selected XR and vision-based sources, but we distinguish the reusable boundary from vendor-specific wrapper code.
-    \item \textbf{A local/remote node-placement abstraction} that allows a motion-processing node to be wrapped for client-local, client-to-server, server-local, or server-to-client placement. We use application-level latency traces as a placement case study, not as a vendor-baseline performance claim.
+    \item \textbf{A schema-based, validity-aware motion-data contract} for XR skeletal motion, including addressable slots, parent relations, region views, optional pose components, binary validity flags, in-process buffer views, and validity-preserving serialization.
+    \item \textbf{An adapter boundary for heterogeneous tracking sources} that localizes SDK-specific joint ordering, coordinate conversion, body coverage, and component-availability semantics before publication into the shared contract.
+    \item \textbf{A contract-view consumer model} demonstrated with representative filters, estimators, retargeting nodes, replay utilities, and network transport that consume shared schema views rather than source-specific records.
+    \item \textbf{A scoped systems evaluation} consisting of implementation coverage, adapter-mapping evidence, a within-subjects setup-burden case study, and application-level local/remote placement traces.
 \end{itemize}
 
 \section{Related Work}\label{sec:related}
@@ -57,30 +58,31 @@ Device-independent VR tracking is not new. VRPN provides a device-independent an
 
 \paragraph{XR APIs, avatar motion, and offloading.}
 OpenXR standardizes device access and extensions such as hand tracking~\cite{khronos_openxr_1_0,openxr_ext_hand}, while platform SDKs expose additional body, hand, controller, camera, or device-specific streams. These APIs tell an application how to access a source, but they do not prescribe how to represent partial skeletal motion across heterogeneous sources, mark unavailable components, or expose the same representation to filters, learned regressors, IK nodes, retargeters, and network serializers.
-Sparse avatar-motion reconstruction has advanced rapidly~\cite{jiang2022avatarposer,dai2024hmd,xu2024mobileposer,yang2024divatrack,starke2024categorical}. Avatar representation and retargeting affect embodiment and agency~\cite{yun2023animationfidelity,cheymol2023beyond,weidner2023avatarsagents}, with AvatarGo focusing on plug-and-play self-avatar setup~\cite{ponton2022avatargo}. UnifiedXRMotion does not compete with these algorithms. It provides infrastructure around them: a contract through which estimators, IK solvers, and retargeters can be represented as consumers and producers in the same runtime. For offloading, recent work such as XRgo investigates rendering offload for low-power XR devices~\cite{gao2025xrgo}. UnifiedXRMotion's local/remote placement abstraction is narrower: it makes node placement explicit and exposes application-level latency traces for motion-buffer transmission.
+Sparse avatar-motion reconstruction has advanced rapidly~\cite{jiang2022avatarposer,dai2024hmd,xu2024mobileposer,yang2024divatrack,starke2024categorical}. Avatar representation and retargeting affect embodiment and agency~\cite{yun2023animationfidelity,cheymol2023beyond,weidner2023avatarsagents}, with AvatarGo focusing on plug-and-play self-avatar setup~\cite{ponton2022avatargo}. UnifiedXRMotion provides infrastructure around these algorithms: a contract through which estimators, IK solvers, and retargeters can be represented as consumers and producers in the same runtime. For offloading, recent work such as XRgo investigates rendering offload for low-power XR devices~\cite{gao2025xrgo}. UnifiedXRMotion's local/remote placement abstraction is narrower: it makes node placement explicit and exposes application-level latency traces for motion-buffer transmission.
 
 \section{Schema-Based Motion-Data Contract}\label{sec:contract}
-UnifiedXRMotion represents skeletal motion through a \emph{schema} rather than through a hard-coded claim about the human body or avatar rig. A schema defines addressable motion slots, parent relations, and optional region views. A slot is an indexable location in the motion representation, such as a head, wrist, fingertip, tracker, prop, facial control, or application-specific joint. Each slot may carry pose components such as position, rotation, velocity, and angular velocity. Each component is guarded by a binary validity flag, so a tracker can publish only the data it observes and downstream nodes can avoid reading absent components.
+UnifiedXRMotion treats skeletal motion as a runtime contract between motion producers and consumers. The contract is schema-based: an application chooses stable slot identities, optional parent relations, and named region views. A slot is an indexable location in the motion representation, such as a head, wrist, fingertip, tracker, prop, facial control, or application-specific joint. Each slot may carry pose components such as position, rotation, velocity, and angular velocity, and each component has an explicit validity bit. The contract therefore records both where motion data belongs and which components a particular source has actually provided.
 
 \subsection{Contract Definition and Invariants}\label{sec:contract-formal}
-A motion-data contract can be described as a tuple
+A contract instance separates a static schema from per-sample motion state. The schema is
 \begin{equation}
-    \mathcal{C} = (S, P, R, K, V),
+    \mathcal{S} = (S, P, R, K),
 \end{equation}
-where $S=\{s_0,\ldots,s_{n-1}\}$ is a finite set of motion slots, $P \subseteq S \times S$ is an optional parent relation, $R=\{r_1,\ldots,r_m\}$ is a set of named region views with each $r_j \subseteq S$, $K$ is the set of pose-component kinds, and $V$ stores component-level validity. A slot is a stable address in the contract; it is not itself a claim that the underlying tracker directly observes that body part. A region view is a named projection over global slot identities, such as a hand view, upper-body view, lower-body view, or full-body view.
+where $S=\{s_0,\ldots,s_{n-1}\}$ is a finite set of motion slots, $P \subseteq S \times S$ is an optional parent relation, $R=\{r_1,\ldots,r_m\}$ is a set of named region views with each $r_j \subseteq S$, and $K$ is the set of pose-component kinds. A slot is a stable address in the contract; direct tracker observability is represented by validity in the runtime state. A region view is a named projection over global slot identities, such as a hand view, upper-body view, lower-body view, or full-body view.
 
-For each slot $s_i$, the runtime stores a pose record
+For each sample time $t$, the runtime stores per-slot motion state
 \begin{equation}
-    m_i = (p_i, q_i, v_i, \omega_i),
+    M(t)=\{(m_i(t),V_i(t))\}_{i=0}^{n-1},
 \end{equation}
-where $p_i$ is position, $q_i$ is orientation, $v_i$ is linear velocity, and $\omega_i$ is angular velocity in the prototype record. The corresponding validity mask is
+with
 \begin{equation}
-    V_i = (b^p_i, b^q_i, b^v_i, b^\omega_i), \qquad b^k_i \in \{0,1\}.
+    m_i(t) = (p_i, q_i, v_i, \omega_i), \qquad
+    V_i(t) = (b^p_i, b^q_i, b^v_i, b^\omega_i), \qquad b^k_i \in \{0,1\}.
 \end{equation}
-A component $m_i^k$ is consumable only when $b_i^k=1$. This rule is the operational core of the contract: partial trackers do not need to synthesize missing components merely to satisfy a fixed skeleton layout, and consumers must not silently assume unavailable components.
+Here $p_i$ is position, $q_i$ is orientation, $v_i$ is linear velocity, and $\omega_i$ is angular velocity in the prototype record. A component $m_i^k$ is consumable only when $b_i^k=1$. This rule is the operational core of the contract: partial trackers do not need to synthesize missing components to satisfy a fixed skeleton layout, and consumers cannot silently assume unavailable components.
 
 \begin{table}[t]
-\caption{Contract invariants used by adapters, consumers, and network wrappers. These are design constraints of the runtime contract, not claims of universal device support.}\label{tab:contract-invariants}
+\caption{Contract invariants used by adapters, consumers, and network wrappers. These are design constraints of the runtime contract.}\label{tab:contract-invariants}
 \scriptsize
 \begin{tabularx}{\textwidth}{P{31mm}Y Y}
 \toprule
@@ -90,7 +92,7 @@ Subset publication & A source may publish any subset of schema slots. & Headsets
 Component validity & A consumer may read a component only when its validity flag is true. & Missing rotations, positions, velocities, or angular velocities are explicit data states rather than implicit errors. \\
 Stable slot identity & Region views preserve global slot identities. & A hand-only node and a full-body node can refer to the same wrist slot without translating local indices. \\
 Adapter normalization & SDK-specific coordinate conversion and joint-order mapping are completed before publication. & Downstream consumers depend on contract semantics, not vendor coordinate conventions. \\
-Schema agreement & Adapters and consumers must agree on the schema version or layout used by the application. & The contract is a runtime agreement, not an automatic discovery mechanism for arbitrary avatar rigs. \\
+Schema agreement & Adapters and consumers must agree on the schema version or layout used by the application. & The contract requires explicit schema agreement for arbitrary avatar rigs. \\
 Network preservation & Serialization and network wrappers preserve slot identity and validity state. & Local and remote placements can exchange partial motion records without changing the meaning of missing data. \\
 \bottomrule
 \end{tabularx}
@@ -99,14 +101,14 @@ Network preservation & Serialization and network wrappers preserve slot identity
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig2-kinematicbuffer.pdf}
-\caption{Prototype buffer and region-view instantiation of the schema-based motion-data contract. The figure illustrates how a concrete full-body layout is exposed through buffer views for downstream nodes. The slot count shown in the prototype is an implementation example, not a universal skeleton standard or the conceptual contribution.}
+\caption{Prototype buffer and region-view instantiation of the schema-based motion-data contract. The figure illustrates how a concrete full-body layout is exposed through buffer views for downstream nodes. The slot count shown in the prototype is an implementation example; the conceptual contribution is the schema and validity boundary.}
 \label{fig:contract}
 \end{figure}
 
-Table~\ref{tab:contract} separates the general contract from the current prototype instantiation. This separation is essential. The prototype's 77-slot layout is useful evidence that the contract can express a full-body avatar pipeline, but it is not a universal skeleton standard.
+Table~\ref{tab:contract} separates the general contract from the current prototype instantiation. This separation is essential. The prototype's 77-slot layout is useful evidence that the contract can express a full-body avatar pipeline while remaining one schema instantiation.
 
 \begin{table}[t]
-\caption{Motion contract concepts. The prototype instantiation is evidence of implementation scope, not the conceptual boundary of the contract.}\label{tab:contract}
+\caption{Motion contract concepts. The prototype instantiation is evidence of implementation scope; the conceptual boundary is the schema and validity model.}\label{tab:contract}
 \scriptsize
 \begin{tabularx}{\textwidth}{P{23mm}YYY}
 \toprule
@@ -117,7 +119,7 @@ Region view & Named subset of slots for partial-body processing. & Views for han
 Pose record & Optional components attached to a slot. & Position, rotation, velocity, and scalar angular velocity fields in a per-slot record. & Angular velocity is under-specified for full 3D rotation if represented as a scalar. \\
 Validity & Binary component-level availability. & Flags indicate whether position, rotation, velocity, or angular velocity is present. & Continuous confidence is not preserved in the current contract. \\
 Buffer view & In-process access to preallocated records. & Kinematic buffer views expose whole-body or region-specific views. & Zero-copy applies only to in-process views, not network transport. \\
-Wire format & Serialization follows the same validity contract. & Invalid components can be omitted during serialization. & This paper treats serialization as semantic preservation rather than as a compression benchmark. \\
+Wire format & Serialization follows the same validity contract. & Invalid components can be omitted during serialization. & This paper treats serialization as semantic preservation; compression effects are unevaluated. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -126,7 +128,7 @@ Partial tracking is the normal case in XR. A headset and controllers provide onl
 
 
 \section{Adapter Boundary}\label{sec:adapters}
-UnifiedXRMotion uses SDK-specific adapters to map native tracking outputs into the motion-data contract. The central boundary is intentionally small: an adapter initializes the native source, polls or receives tracking data, exposes the slots it can publish, and returns pose records with validity flags. The adapter code is not the research novelty; much of it is necessarily vendor-specific wrapper code. The contribution is that all adapters target the same schema and validity semantics.
+Adapters are the boundary where native tracking outputs become contract records. Each adapter initializes or reads a source, converts native joint ordering and coordinate conventions into schema slots, marks component validity, and publishes pose records. The individual SDK calls remain vendor-specific wrapper code. The reusable artifact is the boundary: after publication, downstream filters, estimators, retargeters, replay utilities, and network wrappers depend on slot identity and validity semantics rather than on source-specific records.
 
 \begin{figure}[t]
 \centering
@@ -153,24 +155,24 @@ UnifiedXRMotion uses SDK-specific adapters to map native tracking outputs into t
 \end{figure}
 
 \begin{table}[t]
-\caption{Prototype adapter matrix. The table reports implementation coverage, not equal experimental validation.}\label{tab:adapters}
+\caption{Prototype adapter matrix. The table reports implementation coverage; validation depth differs by source.}\label{tab:adapters}
 \scriptsize
 \begin{tabularx}{\textwidth}{P{22mm}P{25mm}P{25mm}YY}
 \toprule
 Adapter/source & Native SDK or source & Motion coverage & Mapping into contract & Validation status and limitation \\
 \midrule
 Meta body/hand & OVR / OpenXR paths & Body, hands, HMD, controllers & Native bone IDs and device poses are mapped to schema slots. & Implemented and used in prototype traces; remains vendor-specific wrapper code. \\
-XREAL hand & NRSDK / XR Hands path & Hands and head-relative context & Hand joints are mapped to hand-region slots with vendor-specific offsets. & Implemented; previous video quality issues mean it should not support avatar-quality claims. \\
-Unity XR & Unity XR / OpenXR input & HMD, controller, hand sources & Generic Unity poses are published into selected slots. & Implemented as adapter evidence; not a proof of full OpenXR coverage. \\
-Vive / OpenXR & Vive OpenXR hand tracking & Hand joints & Vendor hand joints are converted to hand-region slots. & Implemented; not evaluated as a separate user study condition. \\
+XREAL hand & NRSDK / XR Hands path & Hands and head-relative context & Hand joints are mapped to hand-region slots with vendor-specific offsets. & Implemented; evidence is limited to adapter functionality rather than avatar-quality assessment. \\
+Unity XR & Unity XR / OpenXR input & HMD, controller, hand sources & Generic Unity poses are published into selected slots. & Implemented as adapter evidence for selected OpenXR-style sources. \\
+Vive / OpenXR & Vive OpenXR hand tracking & Hand joints & Vendor hand joints are converted to hand-region slots. & Implemented; separate user-study evidence was not collected. \\
 Mediapipe & Vision-based landmarks & Hands or upper body & Landmarks are converted into slot positions and binary validity. & Implemented; continuous confidence is quantized away. \\
-Android AR / transform / replay / dummy & Mobile AR camera, scene transforms, recorded data, synthetic sources & Application-specific partial motion & Poses are published into selected slots for testing or replay. & Useful for testing and demos; not hardware-generalization evidence. \\
+Android AR / transform / replay / dummy & Mobile AR camera, scene transforms, recorded data, synthetic sources & Application-specific partial motion & Poses are published into selected slots for testing or replay. & Useful for testing and demos; hardware generalization remains outside this evidence. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \begin{table}[t]
-\caption{Examples of source-specific coordinate and data-format differences handled at the adapter boundary. The table is implementation evidence for localization of heterogeneity, not a claim of new tracking.}\label{tab:sdk-mapping}
+\caption{Examples of source-specific coordinate and data-format differences handled at the adapter boundary.}\label{tab:sdk-mapping}
 \scriptsize
 \begin{tabularx}{\textwidth}{P{20mm}P{22mm}P{27mm}P{31mm}P{23mm}Y}
 \toprule
@@ -181,7 +183,7 @@ Meta OpenXR & 26 $\times$ 6DoF hand joint poses & Right-handed, Z-backward & Z-f
 Meta OVR & 24 $\times$ 3DoF local joint rotations plus 6DoF root pose & Right-handed, X-forward local frames & Right-to-left conversion, X-to-Z remapping, and local-to-world reconstruction before slot publication. & Hand slots; body/HMD/controller paths in separate adapters & Rotation is native; positions are reconstructed by forward kinematics. \\
 XREAL NRSDK & 23 $\times$ 6DoF joint poses & Left-handed, Y-forward & Y-to-Z axis rotation and hand-region slot mapping. & Hand slots and head-relative context & Position and rotation valid after vendor-specific offsets. \\
 XREAL OpenXR & 26 $\times$ 6DoF joint poses & Left-handed, Z-forward & Direct OpenXR-style hand mapping. & Hand slots & Position and rotation valid where the runtime exposes joints. \\
-Vive OpenXR & 26 $\times$ 6DoF hand joint poses & Right-handed, Z-backward & Z-flip for position and rotation. & Hand slots & Implemented as selected-source evidence, not independently evaluated as a study condition. \\
+Vive OpenXR & 26 $\times$ 6DoF hand joint poses & Right-handed, Z-backward & Z-flip for position and rotation. & Hand slots & Implemented as selected-source evidence; separate study evidence was not collected. \\
 MediaPipe Vision Tasks & 21 world landmarks or 33 body landmarks & Camera-centered world landmarks & Normalize landmarks to tracking frame; publish observed landmarks as slot positions. & Hands or upper body & Position valid; rotations are absent or estimated and should be treated cautiously. \\
 \bottomrule
 \end{tabularx}
@@ -203,11 +205,11 @@ Replay / dummy sources to testing & Recorded or synthetic pose publication. & Sa
 \end{tabularx}
 \end{table}
 
-Table~\ref{tab:adapters} preempts a likely reviewer objection. UnifiedXRMotion is partly an integration layer, because any practical XR system must interface with SDKs. The paper's claim is not that the wrappers are novel. The claim is that a small adapter boundary plus a validity-aware contract prevents the rest of the motion pipeline from depending directly on each SDK's joint order, coordinate conventions, validity semantics, and update conventions. Tables~\ref{tab:sdk-mapping} and~\ref{tab:same-consumer} make this boundary concrete: source-specific conversions occur before publication, while downstream nodes consume schema views and validity masks.
+Tables~\ref{tab:adapters}, \ref{tab:sdk-mapping}, and~\ref{tab:same-consumer} show the level at which heterogeneity is localized. Coordinate handedness, joint order, inferred-versus-observed components, and source coverage are handled before publication. After publication, consumers access the same region views and validity masks. This table evidence supports the adapter boundary claim without treating vendor-specific wrapper code as a separate research contribution.
 
 
 \section{Runtime and Local/Remote Node Placement}\label{sec:runtime}
-The runtime is an event-driven motion-node pipeline. A trigger list identifies root nodes that poll or receive new motion data. When a root node updates, it invokes a sender event; downstream receivers subscribe to that event, read the upstream motion contract through buffer views, write their own output records, and publish another update. This design is intentionally simple and Unity-friendly. It should not be described as topological graph scheduling. There is no general cycle detector or graph optimizer in the current implementation.
+The runtime uses an event-driven motion-node pipeline over the shared contract. A trigger list identifies root nodes that poll or receive new motion data. When a root node updates, it invokes a sender event; downstream receivers subscribe to that event, read the upstream motion contract through buffer views, write their own output records, and publish another update. The execution model is a Unity-oriented event propagation mechanism rather than a graph-optimization scheduler.
 
 \begin{figure}[t]
 \centering
@@ -227,29 +229,29 @@ The runtime is an event-driven motion-node pipeline. A trigger list identifies r
   \draw[->, bend left=25, dashed] (filter.north) to (retarget.north);
 \end{tikzpicture}%
 }
-\caption{Actual runtime model. UnifiedXRMotion uses trigger-based scheduling and sender/receiver event propagation over a shared motion contract. It should not be interpreted as a general DAG execution engine.}
+\caption{Runtime model. UnifiedXRMotion uses trigger-based scheduling and sender/receiver event propagation over a shared motion contract.}
 \label{fig:runtime}
 \end{figure}
 
-For client-server deployments, UnifiedXRMotion provides a network wrapper around selected motion nodes. The wrapper exposes placement states describing where the producer, node execution, and consumer reside. The structural claim is that a node can be wrapped for different placements without rewriting the node implementation. This is not a claim that all placements are deterministically equivalent or faster; equivalence and performance require separate measurement.
+For client-server deployments, UnifiedXRMotion provides a network wrapper around selected motion nodes. The wrapper exposes placement states describing where the producer, node execution, and consumer reside. The claim is structural: a node can be wrapped for different placements without rewriting the node implementation, while behavioral equivalence and performance remain empirical properties of a particular deployment.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.92\textwidth]{fig6-offload.pdf}
-\caption{Local/remote node-placement abstraction in the prototype. The same class of motion-node pipeline can be configured for local or remote execution contexts through a wrapper. The figure illustrates a placement mechanism, not deterministic equivalence or a general latency-improvement claim.}
+\caption{Local/remote node-placement abstraction in the prototype. The same class of motion-node pipeline can be configured for local or remote execution contexts through a wrapper.}
 \label{fig:placement}
 \end{figure}
 
-The current latency utility logs application-level motion-pipeline or RPC timing. It does not include sensor exposure, SDK internal sampling, Unity render submission, compositor scheduling, display scan-out, or photon emission. Table~\ref{tab:latency-definition} defines the safe interpretation.
+The timing utility logs application-level motion-pipeline or RPC timing between stamped send and receive events. The metric excludes sensor exposure, SDK internal sampling, Unity render submission, compositor scheduling, and display scan-out. Table~\ref{tab:latency-definition} defines the measurement boundary.
 
 \begin{table}[t]
-\caption{Latency metric definition. The safe metric is useful for runtime debugging but must not be renamed as input-to-photon latency.}\label{tab:latency-definition}
+\caption{Latency metric definition for application-level placement traces.}\label{tab:latency-definition}
 \scriptsize
 \begin{tabularx}{\textwidth}{P{26mm}YYYP{25mm}}
 \toprule
 Metric & Included components & Excluded components & Safe interpretation & Unsafe interpretation \\
 \midrule
-Application-level motion-pipeline latency & Runtime tick/RPC delivery path between stamped motion-buffer send and receive events, plus framework scheduling effects included in that path. & Sensor sampling, native SDK buffering, clock synchronization, rendering, compositor, scan-out, photon emission. & Descriptive timing of the prototype's motion-buffer path under specific local/remote placements. & Input-to-photon, motion-to-photon, or proof that offloading improves perceived latency. \\
+Application-level motion-pipeline latency & Runtime tick/RPC delivery path between stamped motion-buffer send and receive events, plus framework scheduling effects included in that path. & Sensor sampling, native SDK buffering, clock synchronization, rendering, compositor, scan-out, and display timing. & Descriptive timing of the prototype's motion-buffer path under specific local/remote placements. & End-to-end display latency, perceived latency, or proof that offloading improves avatar responsiveness. \\
 Frame-time logging utility & Unity frame interval or tick records exported for analysis. & Network transport decomposition and tracker capture time. & Runtime diagnostic signal. & Network latency or user-perceived latency by itself. \\
 \bottomrule
 \end{tabularx}
@@ -257,7 +259,7 @@ Frame-time logging utility & Unity frame interval or tick records exported for a
 
 
 \section{Implementation}\label{sec:implementation}
-The prototype is implemented as a Unity package. Its core implementation separates four concerns. First, motion slots are stored in preallocated buffers. Region views expose subsets of the schema, allowing a hand-only node, upper-body node, or full-body node to operate on the subset it needs. In-process view access avoids copying the entire pose record for each node. Network transmission necessarily serializes records and is not zero-copy. Second, SDK-specific adapters publish native tracking data into the shared contract. Some adapters are direct wrappers over vendor SDKs; others support synthetic transforms, replay, or vision-based sources. Third, the prototype includes IK, retargeting, codebook, filtering, record, and replay nodes. These nodes demonstrate that the contract can serve multiple consumers, but they are not claimed as new algorithms. Textbook solvers such as FABRIK~\cite{aristidou2011fabrik} and codebook-style control inspired by prior work~\cite{starke2024categorical} should be cited as algorithmic background rather than framed as the paper's novelty. Fourth, the implementation includes CSV and histogram export utilities for timing traces, plus record/replay utilities that can support reproducible evaluation.
+The prototype is implemented as a Unity package. Its core implementation separates four concerns. First, motion slots are stored in preallocated buffers. Region views expose subsets of the schema, allowing a hand-only node, upper-body node, or full-body node to operate on the subset it needs. In-process view access avoids copying the entire pose record for each node. Network transmission necessarily serializes records and is not zero-copy. Second, SDK-specific adapters publish native tracking data into the shared contract. Some adapters are direct wrappers over vendor SDKs; others support synthetic transforms, replay, or vision-based sources. Third, the prototype includes IK, retargeting, codebook, filtering, record, and replay nodes as representative consumers of the contract. Textbook solvers such as FABRIK~\cite{aristidou2011fabrik} and codebook-style control inspired by prior work~\cite{starke2024categorical} provide algorithmic background for these consumers. Fourth, the implementation includes CSV and histogram export utilities for timing traces, plus record/replay utilities that can support reproducible evaluation.
 
 \subsection{Representative Consumer: Retargeting Through Contract Views}\label{sec:retarget-consumer}
 Retargeting is used here as a representative consumer of the contract rather than as a claimed algorithmic contribution. A retargeter subscribes to a schema view, checks component validity, and maps the valid source transforms into an avatar-specific rig. For body skeleton retargeting, let $\mathbf{T}_{j,\mathrm{src}}^0$ and $\mathbf{T}_{j,\mathrm{src}}(t)$ denote the homogeneous transforms of source joint $j$ at the canonical pose and at time $t$, and let $\mathbf{T}_{j,\mathrm{tgt}}^0$ denote the target avatar's canonical transform. A representative relative-transform mapping is
@@ -272,21 +274,21 @@ Hand retargeting illustrates why source-specific frames should be normalized bef
     \hat{\mathbf{z}}_i &= \frac{\mathbf{p}_{i}^{(f)}-\mathbf{p}_{i}^{(o)}}{\lVert \mathbf{p}_{i}^{(f)}-\mathbf{p}_{i}^{(o)}\rVert}, \\
     \hat{\mathbf{y}}_i &= s\;\frac{\hat{\mathbf{z}}_i \times \hat{\mathbf{x}}_i}{\lVert \hat{\mathbf{z}}_i \times \hat{\mathbf{x}}_i\rVert},
 \end{align}
-with $s=+1$ for left hands and $s=-1$ for right hands. This example is included to show how contract consumers can reuse the same hand-region view after adapter normalization; it should not be read as a novel retargeting method.
+with $s=+1$ for left hands and $s=-1$ for right hands. This example shows how contract consumers can reuse the same hand-region view after adapter normalization.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.92\textwidth]{fig3-retarget.pdf}
-\caption{Representative retargeting consumers reading from contract views and writing to heterogeneous avatar rigs. The figure illustrates consumption of the shared motion contract, not a new retargeting algorithm.}
+\caption{Representative retargeting consumers reading from contract views and writing to heterogeneous avatar rigs. The figure illustrates consumption of the shared motion contract.}
 \label{fig:retarget-consumer}
 \end{figure}
 
 \begin{table}[t]
-\caption{Original-vs-wrapper boundary. This table states what the paper can safely claim and what it must not claim.}\label{tab:orig-wrapper}
+\caption{System component classification and evidence scope.}\label{tab:orig-wrapper}
 \scriptsize
 \begin{tabularx}{\textwidth}{P{25mm}P{27mm}YYY}
 \toprule
-Component & Classification & Role in this paper & Safe claim & Unsafe claim \\
+Component & Classification & Role in this paper & Supported interpretation & Out-of-scope interpretation \\
 \midrule
 Schema, slot records, validity flags, buffer views & Original framework logic & Motion-data contract & Defines the runtime representation consumed by adapters and nodes. & Universal skeleton standard. \\
 Validity-aware serialization & Original logic over networking library & Wire representation & Can omit unavailable components according to flags. & Measured payload reduction without a benchmark. \\
@@ -294,16 +296,16 @@ Tracking adapters & SDK-specific wrappers plus mapping logic & Evidence of adapt
 Event-driven node interfaces & Original runtime logic & Composition model & Supports sender/receiver motion-node pipelines. & Full DAG scheduler or graph optimizer. \\
 IK, retargeting, codebook consumers & Textbook, third-party, or application-specific nodes & Example consumers & Demonstrate contract consumption by motion-processing nodes. & Novel IK or retargeting contribution. \\
 Network wrapper & Original logic over networking library & Local/remote placement & Provides four structural placement states for wrapped nodes. & Deterministic equivalence or latency improvement without measurement. \\
-Timing utilities & Original support code & Descriptive characterization & Export application-level timing traces. & Input-to-photon or motion-to-photon measurement. \\
+Timing utilities & Original support code & Descriptive characterization & Export application-level timing traces. & End-to-end display-latency measurement. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \section{Evaluation and Case Study Evidence}\label{sec:evaluation}
-The evidence is scoped to the systems contribution claimed in this paper. We report implementation evidence for the contract and adapter boundary, a within-subjects setup-burden case study, and application-level traces illustrating local/remote node placement. These results support the use of a shared runtime contract for selected heterogeneous avatar-motion pipelines; they are not presented as a complete performance evaluation, a vendor-native runtime baseline, an avatar-quality study, or evidence of universal device coverage.
+The evaluation is designed around the contract-and-boundary systems claim. It asks three questions: whether the schema and validity model are instantiated in a concrete pipeline, whether heterogeneous sources can be localized at adapters while consumers reuse contract views, and how the prototype behaves in one setup task and selected local/remote placement traces. The scope is implementation and application-level evidence for selected pipelines, rather than a complete performance benchmark, avatar-quality study, or device-coverage study.
 
 \subsection{Contract and Adapter Coverage}
-Tables~\ref{tab:contract}, \ref{tab:contract-invariants}, \ref{tab:adapters}, \ref{tab:sdk-mapping}, \ref{tab:same-consumer}, and~\ref{tab:orig-wrapper} summarize the implementation evidence for the motion contract, adapter boundary, and original-vs-wrapper separation. The important result is not the number of slots or adapters; it is the separation of concerns. Device-specific logic is localized in adapters, while downstream nodes operate on the shared contract. This supports the claim that UnifiedXRMotion implements a concrete schema-based contract and demonstrates it with selected sources. It does not prove generality across all XR devices.
+Tables~\ref{tab:contract}, \ref{tab:contract-invariants}, \ref{tab:adapters}, \ref{tab:sdk-mapping}, \ref{tab:same-consumer}, and~\ref{tab:orig-wrapper} summarize the implementation evidence for the motion contract, adapter boundary, and original-vs-wrapper separation. The important result is the separation of concerns: device-specific logic is localized in adapters, while downstream nodes operate on the shared contract. This supports the claim that UnifiedXRMotion implements a concrete schema-based contract and demonstrates it with selected sources.
 
 \subsection{Authoring Case Study: Setup Burden}\label{sec:userstudy}
 We conducted a within-subjects Unity setup task comparing a UnifiedXRMotion workflow against a vendor SDK workflow. Participants configured the same scene-level goal in both conditions: making custom OpenXR hand prefabs follow simulated hand motion and making the same Y Bot avatar follow simulated full-body motion. Both conditions used the Meta XR Simulator for verification, including random full-body motion and hand motion or pinch gestures. The study used Unity 6000.0.33f1 and Meta Core, Movement SDK, and XR Simulator version 78.0.0.
@@ -313,7 +315,7 @@ To avoid conflating pipeline assembly with mesh-specific hand-axis calibration, 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.92\textwidth]{fig5-configure.pdf}
-\caption{Representative setup workflow used in the authoring case study. The figure is used to clarify the procedural configuration burden measured by the study; it is not a general proof of developer productivity or long-term maintainability.}
+\caption{Representative setup workflow used in the authoring case study. The figure clarifies the procedural configuration burden measured by the study.}
 \label{fig:configure-workflow}
 \end{figure}
 
@@ -327,7 +329,7 @@ Aspect & UnifiedXRMotion condition & Vendor SDK condition & Interpretation / lim
 Scene assets & Task scene with Y Bot, Hands, and OpenXR custom hand prefabs. & Matched task scene with the same semantic assets. & Same scene-level goal, not identical procedures. \\
 Full-body goal & Add Motion Avatar, MotionSystem, Meta body tracking, and full-body retarget node. & Configure camera rig, body tracking support, and Movement SDK retargeter. & Measures setup burden for one prepared full-body task. \\
 Hand goal & Add Motion Avatar, MotionSystem, Meta hand tracking, and two-hands retarget node. & Configure interaction prefabs, synthetic hands, custom skeleton visuals, and data modifiers. & Vendor task has more visible prefab wiring; that is part of the compared workflow. \\
-Verification & Meta XR Simulator random body motion and hand/pinch checks. & Same simulator-based behavioral check. & Verifies scene behavior, not avatar-motion quality. \\
+Verification & Meta XR Simulator random body motion and hand/pinch checks. & Same simulator-based behavioral check. & Verifies scene behavior; avatar-motion quality is outside the study scope. \\
 Hand-axis alignment & Pre-completed before the session. & Pre-completed before the session. & Avoids a confound but excludes full new-mesh integration cost. \\
 Completion criterion & Scene behavior matches reference clips. & Scene behavior matches reference clips. & Completion depends on procedural correctness. \\
 \bottomrule
@@ -353,17 +355,17 @@ Hedges' $g_{\mathrm{av}}$ & $-1.84$ & $-1.03$ & $+2.39$ \\
 \end{tabularx}
 \end{table}
 
-Table~\ref{tab:user-results} suggests that the UnifiedXRMotion workflow reduced procedural setup burden and improved subjective usability for the tested task. The result should not be generalized to all XR development tasks: participants did not author new adapters, did not integrate a previously unseen hand mesh, and did not evaluate long-term maintainability. The completion-time result also showed a sequence-sensitive pattern across the counterbalanced orders (mean difference $-307.6$~s for AB and $-521.4$~s for BA; Welch test $t(16.94)=3.32$, $p=.0040$), so the time difference should be treated as evidence of procedural burden in this task rather than as a stable developer-speed estimate. Sequence sensitivity was not observed for NASA--TLX ($t(16.10)=-0.31$, $p=.763$) or SUS ($t(16.99)=1.53$, $p=.145$).
+Table~\ref{tab:user-results} suggests that the UnifiedXRMotion workflow reduced procedural setup burden and improved subjective usability for the tested task. The result is limited to the tested XR setup task: participants did not author new adapters, did not integrate a previously unseen hand mesh, and did not evaluate long-term maintainability. The completion-time result also showed a sequence-sensitive pattern across the counterbalanced orders (mean difference $-307.6$~s for AB and $-521.4$~s for BA; Welch test $t(16.94)=3.32$, $p=.0040$), so the time difference is best interpreted as evidence of procedural burden in this task rather than as a stable developer-speed estimate. Sequence sensitivity was not observed for NASA--TLX ($t(16.10)=-0.31$, $p=.763$) or SUS ($t(16.99)=1.53$, $p=.145$).
 
 \subsection{Case Study: Local and Remote Motion-Node Placement}\label{sec:placement-case}
-UnifiedXRMotion allows selected motion nodes to be configured under local or remote placement. We use the latency traces in this subsection to illustrate this capability: a motion-buffer path can be placed differently and inspected with the prototype's logging utilities. These measurements are intended to characterize behavior exposed by the node-placement abstraction, not to establish superiority over vendor-native pipelines.
+UnifiedXRMotion allows selected motion nodes to be configured under local or remote placement. We use the traces in this subsection to illustrate this capability: a motion-buffer path can be placed differently and inspected with the prototype's logging utilities. The measurements characterize behavior exposed by the node-placement abstraction in the tested prototype.
 
-The metric is application-level motion-pipeline latency. It includes runtime and network-wrapper timing captured by the prototype, but excludes tracker capture, SDK internal sampling, compositor scheduling, display scan-out, and photon emission. It is therefore not input-to-photon or motion-to-photon latency. Table~\ref{tab:latency-summary} reports the available traces.
+The metric is application-level motion-pipeline latency. It includes runtime and network-wrapper timing captured by the prototype, but excludes tracker capture, SDK internal sampling, compositor scheduling, display scan-out, and perceived visual response. Table~\ref{tab:latency-summary} reports the available traces.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.96\textwidth]{tick_comparison_analysis.pdf}
-\caption{Application-level motion-pipeline latency traces under local and remote node-placement configurations. The plots characterize runtime behavior exposed by the placement abstraction and exclude tracker capture, SDK-internal sampling, compositor scheduling, display scan-out, and photon emission. They should not be interpreted as input-to-photon measurements or vendor-native baselines.}
+\caption{Application-level motion-pipeline latency traces under local and remote node-placement configurations. The plots characterize runtime behavior exposed by the placement abstraction and exclude tracker capture, SDK-internal sampling, compositor scheduling, display scan-out, and perceived visual response.}
 \label{fig:latency-placement}
 \end{figure}
 
@@ -383,7 +385,7 @@ XREAL X4000 & Remote path & 5913 & 20.30 & 18.53 & 33.34 & 36.29 \\
 \end{tabular}
 \end{table}
 
-The results show that placement choices can change application-level latency distributions in the tested prototype, motivating explicit placement as a runtime concern. The traces do not explain the cause of each distributional difference. The current instrumentation does not isolate serialization time, network transport, SDK buffering, scheduler effects, device temperature, or vendor-native runtime behavior. A stronger performance paper would require repeated runs, vendor-native baselines, component-level timing, synchronized clocks, and motion-to-photon instrumentation.
+These traces support a structural interpretation. In the tested prototype, changing placement changes observed application-level timing distributions, so placement is a visible runtime parameter. The traces are insufficient to attribute the cause of each distributional difference or to compare against vendor-native implementations, because the current instrumentation does not isolate serialization time, network transport, SDK buffering, scheduler effects, device temperature, or native tracker buffering.
 
 
 
@@ -392,18 +394,18 @@ The results show that placement choices can change application-level latency dis
 
 \paragraph{What the abstraction enables.} The contract lets adapters, filters, retargeters, and network serializers share a common representation. It also makes missing data explicit. This is valuable for XR because different trackers expose different body regions and component reliability. A hand source, a sparse controller source, a replay stream, and a vision source can all publish partial motion into the same runtime representation, provided that they agree on the schema.
 
-\paragraph{Where the abstraction is still weak.} The contract is not yet a stable standard. The current prototype does not implement full timestamp propagation, explicit coordinate-frame metadata in every record, continuous confidence, or schema-version negotiation. These omissions matter. Without timestamps, latency and synchronization claims are limited. Without coordinate-frame metadata, frame conversions remain adapter-specific and easy to misconfigure. Without continuous confidence, vision trackers lose information when confidence is collapsed into binary validity. Without schema versioning, external tools cannot safely exchange saved motion streams across versions.
+\paragraph{Open design gaps.} The current prototype lacks full timestamp propagation, explicit coordinate-frame metadata in every record, continuous confidence, and schema-version negotiation. These omissions matter. Without timestamps, latency and synchronization claims are limited. Without coordinate-frame metadata, frame conversions remain adapter-specific and easy to misconfigure. Without continuous confidence, vision trackers lose information when confidence is collapsed into binary validity. Without schema versioning, external tools cannot safely exchange saved motion streams across versions.
 
 \paragraph{Local/remote placement remains structural.} The network wrapper is a useful systems abstraction, but structural reuse is not the same as equivalence. A wrapped node may receive data at different times, serialize different subsets, or run under different scheduling conditions. A future version should run the same recorded motion stream through local and remote placements and report per-slot output differences.
 
 \section{Limitations}\label{sec:limitations}
-This work has significant limitations. First, it does not measure input-to-photon or motion-to-photon latency. The reported traces exclude sensor sampling, SDK internal processing, compositor scheduling, rendering, display scan-out, and photon emission. Second, the prototype does not prove universal device support. It implements selected adapters, but each new tracker still requires a schema mapping, coordinate conversion, and validation. Third, the current 77-slot schema is one prototype instantiation; arbitrary avatar rigs require schema agreement and retargeting between the runtime representation and the avatar-specific skeleton. Fourth, UnifiedXRMotion does not introduce new tracking, IK, or retargeting algorithms. The included solvers and retargeters are representative consumers of the contract.
+The main limitation is that UnifiedXRMotion is evaluated as an implemented contract boundary, not as a standardized interchange format or an end-to-end performance system. The reported timing traces exclude sensor sampling, SDK internal processing, compositor scheduling, rendering, and display scan-out. Device coverage is also limited to selected adapters; each new tracker still requires a schema mapping, coordinate conversion, and validation. The current 77-slot schema is one prototype instantiation, and arbitrary avatar rigs require schema agreement plus retargeting between the runtime representation and the avatar-specific skeleton. The included tracking, IK, and retargeting components are representative consumers rather than algorithmic contributions.
 
-The authoring case study also has limits. Hand-axis alignment and mesh-specific retargeting were pre-completed before sessions, so the study isolates pipeline assembly rather than full new-avatar integration. Participants were instructed to prioritize correctness and task completion, so completion time should be interpreted as procedural setup burden, not pure speed. The study does not measure adapter-authoring effort or long-term maintainability. Finally, this paper does not include a bytes-per-frame wire-format benchmark, a serialization round-trip test, a deterministic local/remote equivalence check, or a vendor-native runtime latency baseline. These are appropriate future validations, but they are not claimed here.
+The authoring case study also has limits. Hand-axis alignment and mesh-specific retargeting were pre-completed before sessions, so the study isolates pipeline assembly rather than full new-avatar integration. Participants were instructed to prioritize correctness and task completion, so completion time should be interpreted as procedural setup burden, not pure speed. The study does not measure adapter-authoring effort or long-term maintainability. The evaluation also lacks a bytes-per-frame wire-format benchmark, a serialization round-trip test, a deterministic local/remote equivalence check, and a vendor-native runtime latency baseline. These remain the strongest next validation targets.
 
 \section{Conclusion}
 \label{sec:conclusion}
-UnifiedXRMotion reframes heterogeneous XR avatar-motion integration as a contract problem. Rather than proposing a universal skeleton, a new tracker, or a DAG execution engine, it defines a schema-based validity-aware representation in which trackers publish partial motion into addressable slots and downstream nodes consume only valid components. The prototype demonstrates this contract through selected SDK adapters, event-driven motion nodes, representative retargeting and IK consumers, and a local/remote node-placement wrapper. The current evidence is not sufficient for broad latency or avatar-quality claims, but it supports a narrower EuroXR contribution: a concrete runtime contract and abstraction boundary for composing heterogeneous XR avatar-motion pipelines, with supporting evidence from a setup-burden case study and local/remote placement traces.
+UnifiedXRMotion reframes heterogeneous XR avatar-motion integration as a runtime contract problem. It defines a schema-based validity-aware representation in which producers publish partial motion into addressable slots and downstream nodes consume explicitly valid components through shared views. The Unity prototype demonstrates the contract with selected SDK and vision adapters, event-driven motion nodes, representative retargeting and IK consumers, replay utilities, and a local/remote node-placement wrapper. The evidence supports a scoped EuroXR systems contribution: a concrete contract and adapter boundary for composing heterogeneous XR avatar-motion pipelines, with supporting evidence from implementation coverage, a setup-burden case study, and application-level placement traces.
 
 \bibliographystyle{splncs04}
 \bibliography{bib/references}
