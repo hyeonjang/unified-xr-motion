@@ -1,31 +1,18 @@
 \documentclass[runningheads]{llncs}
 
-\usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{booktabs}
-\usepackage{tabularx}
 \usepackage{array}
-\usepackage{xcolor}
-\usepackage{tikz}
 \usepackage{url}
-\usepackage{listings}
 \graphicspath{{figures/}{figures/latency/}{figures/latency/figures/}}
-\usepackage{float}
-\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
 \urlstyle{rm}
 
-\definecolor{uxblue}{RGB}{42,94,160}
-\definecolor{uxgreen}{RGB}{58,130,83}
-\definecolor{uxorange}{RGB}{186,104,41}
-\definecolor{uxgray}{RGB}{235,235,235}
-\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
-\lstdefinestyle{csharp}{basicstyle=\ttfamily\scriptsize,breaklines=true,frame=single,columns=fullflexible,numbers=none,backgroundcolor=\color{uxgray},rulecolor=\color{black!25}}
 
 \begin{document}
 
-\title{UnifiedXRMotion: A Validity-Aware Runtime Contract for Heterogeneous XR Avatar Motion}
+\title{UnifiedXRMotion: A Schema-Parameterized Validity-Aware Runtime Contract for Heterogeneous XR Avatar Motion}
 \titlerunning{UnifiedXRMotion}
 \author{Anonymous Authors}
 \authorrunning{Anonymous Authors}
@@ -33,7 +20,7 @@
 \maketitle
 
 \begin{abstract}
-XR avatar-motion pipelines often combine sources that differ in body coverage, joint layout, coordinate convention, and component availability. A headset, controller pair, articulated hand tracker, vision model, replay stream, inferred-motion module, and retargeting node may all produce motion for the same avatar pipeline, but downstream consumers should not need source-specific logic for every case. We present UnifiedXRMotion, a Unity prototype organized around a validity-aware runtime contract for heterogeneous XR avatar motion. The contract uses a canonical skeletal schema, reusable sub-skeleton views, and per-joint, per-component availability bits. Observed, inferred, replayed, synthetic, and retargeted components flow through the same skeletal representation; provenance remains implicit in the producing node rather than encoded in the data record. SDK and vision adapters map native observations into the contract, while downstream retargeting, recording, and optional transport components consume shared views and gate reads on explicit availability. Evaluation combines implementation evidence, adapter/producer coverage, reusable-consumer evidence, and a within-subjects setup-burden study. The results support a scoped systems contribution: a concrete contract and boundary for composing selected heterogeneous XR avatar-motion sources without requiring downstream consumers to depend on SDK-specific records.
+XR avatar-motion pipelines increasingly combine directly observed tracking, vision-based landmarks, inferred body motion, replay streams, synthetic inputs, and retargeted outputs. These producers differ not only in body coverage, joint layout, and coordinate convention, but also in which pose components are available at each slot. UnifiedXRMotion explores a simple systems design decision: make component availability first-class runtime data, separate from component values. A producer publishes values into a schema-defined skeletal representation and marks which components are available; a consumer reads region views and gates access using those availability bits rather than source-specific records. Observed, inferred, replayed, synthetic, and retargeted components flow through the same representation, while provenance remains implicit in the producing node rather than encoded in the data record. Evaluation combines implementation evidence, adapter/producer coverage, reusable-consumer evidence, and a within-subjects setup-burden study. The results support a scoped systems contribution: explicit component availability can connect selected heterogeneous XR avatar-motion producers to reusable downstream consumers without requiring those consumers to depend on SDK-specific motion records.
 \keywords{Extended reality \and Avatar motion \and Tracking middleware \and Motion-data contract \and Runtime systems \and Authoring}
 \end{abstract}
 
@@ -42,13 +29,13 @@ XR avatars depend on motion pipelines that span tracking acquisition, skeletal r
 
 Existing XR APIs and tracking middleware address important parts of this problem. OpenXR standardizes access to XR devices and extensions such as hand tracking~\cite{khronos_openxr_1_0,openxr_ext_hand}. Earlier VR middleware, including VRPN~\cite{taylor2001vrpn}, OpenTracker~\cite{reitmayr2001openarchitecture}, and Ubiquitous Tracking~\cite{newman2004ubiquitous}, showed that device abstraction and distributed tracking are valuable architectural tools. UnifiedXRMotion builds on that lesson at a narrower layer: avatar-motion pipelines that must carry incomplete skeletal components through adapters, filters, inferred-motion producers, retargeters, record/replay utilities, and optional network wrappers.
 
-The central design choice is to separate \emph{slot identity} from \emph{component availability}. A schema defines addressable motion slots and region views; a producer publishes the slots and components it has available; each pose component is guarded by a validity bit; and downstream consumers read only the components whose bits are set. This contract does not assert that a component is ground-truth correct, directly measured, or high-confidence. It only states that the producing node has made that component available for downstream consumption under its own semantics. In the current prototype, the contract is instantiated with a 77-slot full-body schema covering torso, limbs, head, and articulated hands. This layout is one implementation instance rather than a general skeleton standard.
+The central design choice is to make \emph{component availability} explicit data, separate from both schema-defined slot identity and component values. UnifiedXRMotion does not prescribe a fixed skeleton or slot count. Instead, a pipeline instantiates the contract with a schema that defines addressable motion slots, parent relations, and region views; a producer publishes values for the slots and components it has available; each pose component is guarded by a validity bit; and downstream consumers read only the components whose bits are set. This contract does not assert that a component is ground-truth correct, directly measured, or high-confidence. It only states that the producing node has made that component available for downstream consumption under its own semantics. The evaluated prototype uses one body-and-hands schema instance, but the slot count is not part of the contract semantics.
 
 This paper makes three contributions:
 \begin{itemize}
-    \item \textbf{A validity-aware skeletal motion contract} that combines stable slot identities, a canonical 77-slot prototype schema, sub-skeleton views, per-slot pose records, and per-component availability flags.
+    \item \textbf{Availability as first-class runtime data}: a schema-parameterized skeletal motion contract that separates slot identity and component values from per-component availability.
     \item \textbf{A heterogeneous producer and adapter boundary} that maps selected XR, vision, replay, synthetic, inferred-motion, and retargeted producers into the shared representation while localizing source-specific joint ordering, coordinate conversion, body coverage, and missing-component semantics.
-    \item \textbf{Validity-gated downstream consumption and setup evidence}, demonstrated by retargeting, recording, and optional transport consumers that use shared contract views, plus a within-subjects Unity setup-burden study for the tested authoring task.
+    \item \textbf{Availability-gated downstream reuse and setup evidence}, demonstrated by retargeting, recording, and optional transport consumers that use schema views and availability bits, plus a within-subjects Unity setup-burden study for the tested authoring task.
 \end{itemize}
 
 \section{Related Work}\label{sec:related}
@@ -58,10 +45,21 @@ VRPN provides a device-independent and network-transparent interface for VR peri
 \paragraph{Avatar motion, retargeting, and inference.}
 Sparse avatar-motion reconstruction and motion priors have advanced rapidly~\cite{jiang2022avatarposer,dai2024hmd,xu2024mobileposer,yang2024divatrack,starke2024categorical,ProtoMotions}. Avatar representation, fidelity, and retargeting affect embodiment and agency~\cite{yun2023animationfidelity,cheymol2023beyond,weidner2023avatarsagents}, and AvatarGo studies plug-and-play self-avatar setup~\cite{ponton2022avatargo}. UnifiedXRMotion does not introduce a new tracker, IK solver, retargeting algorithm, or codebook method. Instead, textbook IK~\cite{aristidou2011fabrik}, codebook-style inference inspired by prior work~\cite{starke2024categorical}, and retargeting components are treated as representative nodes that consume and republish the same motion contract.
 
-\section{Validity-Aware Motion Contract}\label{sec:contract}
-UnifiedXRMotion treats skeletal motion as a runtime contract between motion producers and consumers. The contract consists of a schema, region views, per-slot pose records, and per-component availability bits. A slot is a stable address in the motion representation, such as a head, wrist, fingertip, tracker, prop, facial control, or application-specific joint. Each slot may carry position, rotation, velocity, and angular velocity components; each component has an explicit bit indicating whether it is available in the current record.
+The distinction is therefore not that UnifiedXRMotion introduces device abstraction, hand-joint tracking state, retargeting, or dataflow execution independently. Prior systems provide those capabilities at different layers: tracking middleware abstracts devices and transforms, OpenXR exposes source-specific tracking states within particular API families, and avatar-rigging systems retarget motion onto a chosen character representation. UnifiedXRMotion targets a narrower boundary that becomes important when XR pipelines combine sparse device tracking, articulated hands, vision landmarks, replay streams, inferred motion, and retargeted outputs. At this boundary, heterogeneous producers need a shared avatar-motion record with schema-defined slot identity, region views, and per-component availability, while downstream consumers need to read available components without depending on the producing SDK. This paper positions availability itself as the cross-source interface, rather than treating it as a source-local tracking state or an implicit failure case inside each consumer.
 
-A contract instance separates static schema from runtime state. The static schema is
+Figure~\ref{fig:availability-boundary} illustrates this availability boundary using a concrete heterogeneous pipeline. In a source-specific implementation, hand tracking, vision landmarks, lower-body inference, and replay streams expose different notions of coverage, missing components, tracking state, or inferred output; that logic leaks into downstream consumers. UnifiedXRMotion moves the logic to the contract boundary: producers publish component values together with availability bits, and retargeting, recording, transport, or visualization consumers read schema-defined views using availability-gated access. The figure is conceptual; it does not imply that the contract encodes provenance, confidence, scheduling, or latency behavior.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.86\textwidth]{availability_boundary.png}
+    \caption{Conceptual contrast for first-class component availability. Source-specific pipelines push missing-component logic into consumers. UnifiedXRMotion moves availability to the contract boundary: producers publish values and availability bits, and consumers read views using availability-gated access.}
+    \label{fig:availability-boundary}
+\end{figure}
+
+\section{Validity-Aware Motion Contract}\label{sec:contract}
+The central design decision in UnifiedXRMotion is to represent component availability as first-class runtime data, separate from component values. The contract instantiation that follows from this decision consists of a schema-parameterized address space, region views, per-slot pose records, and per-component availability flags. The contract does not require a fixed skeleton or slot count. Instead, a pipeline instantiates an active schema that defines slot identities, parent relations, and region views. A slot is a stable address in that schema, such as a head, wrist, fingertip, tracker, prop, facial control, or application-specific joint. Runtime samples then carry component values and availability bits for the slots in the active schema. This separation is not free: it requires producer--consumer agreement on the active schema instance, and the current contract represents availability as a binary flag rather than continuous confidence.
+
+A contract instance separates static schema from runtime state. Other applications may instantiate the same contract with different schemas, provided that producers and consumers agree on slot identities, region views, and component-availability semantics. The static schema is
 \begin{equation}
     \mathcal{S}=(S,P,R,K),
 \end{equation}
@@ -76,24 +74,39 @@ with $b_i^k\in\{0,1\}$. A consumer may read component $m_i^k$ only when $b_i^k=1
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{fig2-kinematicbuffer.pdf}
-\caption{Prototype buffer and sub-skeleton-view instantiation of the contract. A canonical full-body buffer is exposed through region views so that producers and consumers can operate on the subset they require.}
+\caption{Prototype buffer and region-view instantiation of the contract. An active schema buffer is exposed through region views so that producers and consumers can operate on the subset they require without fixing the contract to one slot count.}
 \label{fig:contract}
 \end{figure}
 
 \begin{table}[t]
 \caption{Contract concepts and evidence scope. Validity denotes component availability, not correctness, confidence, or provenance.}\label{tab:contract}
 \scriptsize
-\begin{tabularx}{\textwidth}{P{25mm}YY}
+\begin{tabular}{@{}P{23mm}P{48mm}P{48mm}@{}}
 \toprule
 Concept & Prototype evidence & Scope boundary \\
 \midrule
-Schema and slots & 77-slot full-body prototype schema with parent maps and sub-skeleton views. & One schema instantiation; arbitrary rigs require schema agreement and retargeting. \\
+Schema and slots & Active schema instance with slot identities, parent maps, and region views. & Slot count is not part of the contract semantics; arbitrary pipelines require schema agreement and mappings. \\
 Pose record & Per-slot \texttt{PhysicBone} fields for position, rotation, velocity, scalar angular velocity, and local transforms. & The record does not carry timestamp, continuous confidence, or source provenance. \\
 Availability & \texttt{PoseFlag} marks position, rotation, velocity, and angular-velocity availability per slot. & Availability does not imply ground-truth correctness or direct sensor observation. \\
 Region views & \texttt{KinematicBuffer<T>} and \texttt{BodyType} expose full-body, upper/lower-body, arms, hands, and hand views. & Views are implementation-defined rather than discovered from arbitrary avatars. \\
 Serialization & Optional transport writes the flag first and can omit unavailable components. & Used as semantic preservation; this paper does not frame the contribution as compression. \\
 \bottomrule
-\end{tabularx}
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\caption{Operational invariants used to keep the contract explicit. These are implementation-level obligations for the prototype, not claims of correctness, provenance, or uncertainty modeling.}\label{tab:invariants}
+\scriptsize
+\begin{tabular}{@{}P{28mm}P{45mm}P{46mm}@{}}
+\toprule
+Invariant & Required behavior & Scope boundary \\
+\midrule
+Producer availability & A producer sets component flags for the values it publishes into a slot. & The bit denotes availability under producer semantics, not measured accuracy. \\
+Consumer gating & A consumer checks the relevant flag before reading or assigning a pose component. & The paper demonstrates representative consumers rather than proving all package modules are SDK-agnostic. \\
+View consistency & Region views preserve slot identity when exposing full-body, hand, upper-body, or lower-body subsets. & Views are derived from the active schema instance, not from a universal avatar ontology. \\
+Availability preservation & Recording and optional transport preserve flags together with published components. & Transport is semantic support, not a latency, compression, or equivalence contribution. \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 This distinction is essential for inferred and retargeted motion. A lower-body inference node may publish a rotation as available, and a retargeting node may publish an avatar-specific component as available, but the contract does not encode whether that component was observed, inferred, reconstructed, replayed, or retargeted. Provenance is implicit in the producing node. Likewise, a vision adapter may threshold continuous confidence into a binary availability bit, but the continuous confidence value is not preserved in the current record. These are deliberate scope boundaries for the present prototype.
@@ -106,7 +119,7 @@ The prototype exposes a minimal adapter interface through \texttt{ITrackingDevic
 \begin{table}[t]
 \caption{Producer and adapter evidence. The table reports selected implementation evidence, not broad device coverage.}\label{tab:producers}
 \scriptsize
-\begin{tabularx}{\textwidth}{P{25mm}P{27mm}YY}
+\begin{tabular}{@{}P{24mm}P{25mm}P{35mm}P{35mm}@{}}
 \toprule
 Producer family & Source examples & Contract mapping & Important limitation \\
 \midrule
@@ -116,7 +129,7 @@ Replay and synthetic sources & Recorded \texttt{PhysicBone} arrays, transform so
 Inferred producers & Codebook-style lower/upper-body regressors and filters. & Publish inferred components back into \texttt{KinematicBuffer<PhysicBone>} with availability flags. & Inference algorithm and model quality are not contributions; provenance is not encoded in the record. \\
 Retargeted producers & IK and retargeting nodes that fill avatar-motion regions. & Consume views and may republish retargeted components into the same representation. & IK and retargeting methods are representative nodes, not algorithmic novelty. \\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \end{table}
 
 The adapter boundary localizes several classes of heterogeneity: vendor joint ordering, handedness and axis conversion, body-region coverage, missing velocity or angular-velocity channels, and SDK tracking-state or visibility conversion. The boundary is not leak-free. For example, vision visibility is reduced to a binary bit, and some device adapters contain source-specific offsets or calibration assumptions. These limitations are why the claim is limited to selected producer families and explicit component availability, not to broad cross-device coverage or automatic calibration.
@@ -124,17 +137,11 @@ The adapter boundary localizes several classes of heterogeneity: vendor joint or
 \section{Validity-Aware Consumers}\label{sec:consumers}
 The strongest consumer evidence is the retargeting path. \texttt{RetargetSystem} reads \texttt{KinematicBufferView<PhysicBone>} instances and checks \texttt{PoseFlag} before assigning position or rotation to avatar transforms. If a component is unavailable, the assignment is skipped rather than silently using a default or stale source value. The same consumer dispatches across \texttt{BodyType} views such as full body, upper/lower body, two arms, and two hands, so the consuming code is organized around contract views rather than around a producing SDK.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.88\textwidth]{fig3-retarget.pdf}
-\caption{Representative retargeting consumers reading contract views and writing to avatar rigs. Retargeting is used as evidence of validity-gated consumption, not as an algorithmic contribution.}
-\label{fig:retarget-consumer}
-\end{figure}
 
 \begin{table}[t]
 \caption{Downstream consumers and evidence scope.}\label{tab:consumers}
 \scriptsize
-\begin{tabularx}{\textwidth}{P{27mm}P{32mm}YY}
+\begin{tabular}{@{}P{25mm}P{30mm}P{33mm}P{31mm}@{}}
 \toprule
 Consumer & Contract use & Supported claim & Unsupported claim \\
 \midrule
@@ -143,24 +150,47 @@ Recording/replay & Stores and republishes \texttt{PhysicBone} arrays with flags.
 Network serialization & Writes \texttt{PoseFlag} before optional channels and preserves availability semantics. & Optional transport can carry partial records. & Compression result, runtime-speed result, or transparent equivalence. \\
 Filters/inference nodes & Read upstream views and republish processed or inferred components. & Observed and inferred components flow through one representation. & Encoded-provenance or uncertainty processing. \\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \end{table}
 
 This consumer evidence is deliberately narrower than claiming that every module is SDK-agnostic. Some concrete retargeters or adapters are vendor-specific by design. The medium-paper claim is that the common contract gives downstream consumers a shared availability-gated representation, and that representative retargeting, recording, inference, replay, and transport nodes operate on that representation without depending on each native SDK record format.
 
+Table~\ref{tab:producer-consumer} makes the reuse claim explicit by linking producer families to the contract view consumed downstream. The table is not a device-coverage benchmark; it shows that different production paths can publish into the same record/view abstraction, after which consumers branch on availability and region view rather than on the native SDK record.
+
+\begin{table}[t]
+\caption{Producer-to-consumer reuse through shared contract views. Rows show representative paths that support the medium-paper claim; they do not imply universal source coverage or encoded provenance.}\label{tab:producer-consumer}
+\scriptsize
+\begin{tabular}{@{}P{28mm}P{24mm}P{28mm}P{39mm}@{}}
+\toprule
+Producer path & Contract view & Downstream consumer & Claim supported \\
+\midrule
+Meta/OVR body tracking & Full-body or upper/lower-body view & Retargeting system & Vendor body streams can be consumed through schema views after adapter mapping. \\
+UnityXR/OpenXR hand sources & Two-hands or hand view & Hand retargeting and recording & Hand-only streams use the same slot/view structure as other producers. \\
+Mediapipe vision landmarks & Position-available upper-body or hand view & Filters, recorder, optional transport & Position-dominant vision sources can publish partial component availability without requiring special downstream records. \\
+Codebook-style inference & Lower-body or full-body view & Retargeting and recorder & Inferred components flow through the same representation, although the record does not encode inferred provenance. \\
+Replay or synthetic source & Recorded or generated \texttt{PhysicBone} buffer & Same representative consumers & Replay and test inputs can act as producers without changing the consumer interface. \\
+Retargeting or IK node & Region view republished as a buffer & Later recording or optional transport & Retargeted components can be republished as available components without claiming a new retargeting algorithm. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Prototype Implementation}\label{sec:implementation}
 UnifiedXRMotion is implemented as a Unity package. Motion slots are stored in preallocated buffers; region views expose subsets without requiring a separate representation for each body part. Root producers are advanced by a frame-driven trigger list, and motion updates propagate through sender/receiver events. This runtime organization is a Unity-oriented composition mechanism rather than a general graph scheduler or graph optimizer.
+
+At runtime, a producer updates a contract buffer for the active schema instance. Device adapters fill directly observed components, replay nodes copy recorded records, inference nodes publish estimated components, and retargeting nodes may republish transformed components into another region view. Updates are propagated through explicit sender/receiver events rather than through a global scheduler. Within each producer-triggered update path, downstream receivers consume the buffer state published by the upstream node during that event propagation. The implementation does not provide global graph scheduling, cross-frame synchronization, out-of-order reconciliation, provenance tracking, or automatic schema negotiation; those mechanisms are outside the scoped contract claim.
 
 The package includes representative nodes for filtering, IK, retargeting, codebook-style inference, record/replay, and optional FishNet-based transport. Textbook IK and prior codebook-style control provide algorithmic background~\cite{aristidou2011fabrik,starke2024categorical}; the contribution here is that these nodes can consume or publish the same validity-aware representation. Optional transport preserves flags and available components, but transport is treated as implementation support rather than the center of the paper.
 
 \section{Evaluation and Case Study Evidence}\label{sec:evaluation}
-The evaluation is scoped to the medium-paper claim. It asks whether the contract is instantiated in a concrete runtime, whether selected heterogeneous producers can be localized at adapters while consumers reuse contract views, and whether the authoring workflow reduces procedural setup burden in one controlled Unity task. The evaluation does not measure tracking accuracy, retargeting quality, general developer productivity, broad device coverage, or display-response timing.
+The evaluation asks whether first-class component availability is instantiated in a working runtime, whether selected heterogeneous producers can be localized at adapters while consumers reuse contract views, and whether the resulting authoring workflow reduces procedural setup burden. It remains scoped to the medium-paper claim and does not measure tracking accuracy, retargeting quality, general developer productivity, broad device coverage, or display-response timing.
 
 \paragraph{Contract, producers, and consumers.}
-Tables~\ref{tab:contract}, \ref{tab:producers}, and~\ref{tab:consumers} summarize the implementation evidence. The contract evidence is the record/view/flag mechanism; the producer evidence is the selected adapter and producer portfolio; and the consumer evidence is validity-gated consumption through retargeting, recording, inference/replay, and optional transport. This evidence supports a concrete runtime contract and boundary, not a claim that the system solves all avatar-motion interoperability problems.
+Tables~\ref{tab:contract}, \ref{tab:invariants}, \ref{tab:producers}, \ref{tab:consumers}, and~\ref{tab:producer-consumer} summarize the implementation evidence. The contract evidence is the record/view/flag mechanism; the producer evidence is the selected adapter and producer portfolio; and the consumer evidence is validity-gated consumption through retargeting, recording, inference/replay, and optional transport. This evidence supports a concrete schema-parameterized runtime contract and boundary, not a claim that the system solves all avatar-motion interoperability problems.
 
 \paragraph{Setup-burden study.}
 We conducted a within-subjects Unity setup task comparing a UnifiedXRMotion workflow against a vendor SDK workflow. Participants configured the same scene-level goal in both conditions: making custom OpenXR hand prefabs follow simulated hand motion and making the same Y Bot avatar follow simulated full-body motion. Both conditions used the Meta XR Simulator for verification. The study used Unity 6000.0.33f1 and Meta Core, Movement SDK, and XR Simulator version 78.0.0.
+
+The vendor-SDK condition used Meta XR Core SDK, Meta XR Interaction SDK, Movement SDK body tracking, OVRCameraRig, OVRInteractionComprehensive, synthetic hands, and the Movement SDK retargeting configuration workflow. Hand-axis alignment for the custom hand meshes was pre-completed in both conditions to avoid making axis tuning part of the measured task.
 
 To avoid confounding pipeline assembly with mesh-specific hand-axis calibration, custom hand retargeting and axis alignment were completed before each session. Participants were instructed to prioritize correctness and completion rather than speed. We therefore interpret completion time as procedural setup burden for the tested task, not as a general developer-speed estimate. The procedure also excludes adapter authoring and full integration of a previously unseen hand mesh.
 
@@ -168,7 +198,7 @@ To avoid confounding pipeline assembly with mesh-specific hand-axis calibration,
 \caption{Within-subjects setup-burden results ($N=19$). Values are mean $\pm$ standard deviation. NASA--TLX is the 0--100 workload score after reversing the performance subscale so that higher values consistently indicate higher workload. Completion time is interpreted as procedural setup burden for the tested Unity task.}\label{tab:user-results}
 \scriptsize
 \centering
-\begin{tabularx}{\textwidth}{P{27mm}rrr}
+\begin{tabular}{@{}P{27mm}rrr@{}}
 \toprule
 Statistic & Completion time (s) & NASA--TLX & SUS \\
 \midrule
@@ -180,20 +210,26 @@ $p$ & $<.0001$ & $<.0001$ & $<.0001$ \\
 Hedges' $g_{\mathrm{av}}$ & $-1.84$ & $-1.03$ & $+2.39$ \\
 \bottomrule
 \multicolumn{4}{@{}p{\textwidth}@{}}{Statistics are computed on paired differences from the supplied raw CSVs. The study supports setup burden in this prepared task; it does not establish general developer productivity or long-term maintainability.}
-\end{tabularx}
+\end{tabular}
 \end{table}
 
 Table~\ref{tab:user-results} shows lower completion time and lower workload for the UnifiedXRMotion condition, with higher SUS scores. The completion-time result had an order-sensitive pattern across counterbalanced orders (mean difference $-307.6$~s for AB and $-521.4$~s for BA; Welch test $t(16.94)=3.32$, $p=.0040$). Sequence sensitivity was not observed for NASA--TLX ($t(16.10)=-0.31$, $p=.763$) or SUS ($t(16.99)=1.53$, $p=.145$). The setup-burden claim is therefore useful but narrow: it supports the tested procedural configuration task, not broad claims about developer productivity.
 
-\section{Discussion and Limitations}\label{sec:discussion-limitations}
-UnifiedXRMotion is evaluated as an implemented contract boundary, not as a standardized interchange format or an end-to-end performance system. The core record does not encode provenance, continuous confidence, schema version, or full timestamp propagation. Provenance is implicit in the producing node, so a downstream consumer cannot tell from the data record alone whether a component was directly observed, inferred, replayed, reconstructed, or retargeted. Vision confidence is collapsed into binary availability in the current adapters, losing information that future versions should preserve.
+Because the sequence effect was significant, the magnitude of the timing difference should not be interpreted as a stable estimate of general developer productivity. The result supports the narrower claim that, in this controlled Unity setup task, the contract-based workflow reduced the procedural configuration burden required from participants.
 
-The adapter portfolio is selected rather than exhaustive. Each new tracker still requires a schema mapping, coordinate conversion, and validation, and some mappings contain source-specific assumptions such as offsets or calibration conventions. The 77-slot schema is one prototype instantiation, not a general avatar skeleton. Arbitrary avatar rigs require schema agreement and retargeting between the runtime representation and the avatar-specific skeleton. The included IK, retargeting, filtering, and codebook-style modules are representative nodes, not algorithmic contributions.
+\section{Discussion and Limitations}\label{sec:discussion-limitations}
+UnifiedXRMotion is evaluated as an implemented contract boundary, not as a standardized interchange format or an end-to-end performance system. We use ``runtime contract'' to mean an in-memory producer--consumer representation used during pipeline execution. This is not a claim about tracker latency, display-response timing, end-to-end frame budget, or offloading performance. The core record does not encode provenance, continuous confidence, schema version, or full timestamp propagation. Provenance is implicit in the producing node, so a downstream consumer cannot tell from the data record alone whether a component was directly observed, inferred, replayed, reconstructed, or retargeted. Vision confidence is collapsed into binary availability in the current adapters, losing information that future versions should preserve.
+
+The adapter portfolio is selected rather than exhaustive. Each new tracker still requires a schema mapping, coordinate conversion, and validation, and some mappings contain source-specific assumptions such as offsets or calibration conventions. The evaluated body-and-hands schema is one prototype instance, not a general avatar skeleton or a required slot layout. Other pipelines may instantiate different schemas, but producers and consumers must agree on slot identities, region views, and mappings to avatar-specific rigs. The included IK, retargeting, filtering, and codebook-style modules are representative nodes, not algorithmic contributions.
 
 The setup study also has limited scope. Hand-axis alignment and mesh-specific retargeting were pre-completed, participants worked on a prepared Unity task, and the study did not measure adapter-authoring effort, long-term maintenance, or quality of produced motion. Optional local/remote traces and transport utilities characterize application-level runtime behavior only; they should not be interpreted as display-response timing, remote-execution performance benefit, or user-perceived responsiveness.
 
+
+\paragraph{Artifact availability.}
+We will provide an anonymized Unity package, example scenes, analysis scripts, and the study materials used in the paper for review or upon acceptance, subject to the submission policy.
+
 \section{Conclusion}\label{sec:conclusion}
-UnifiedXRMotion reframes heterogeneous XR avatar-motion integration as a validity-aware runtime contract problem. Producers publish observed, inferred, replayed, synthetic, or retargeted components into a shared skeletal representation, and consumers read only explicitly available components through schema views. The Unity prototype demonstrates the contract with selected producer families, adapter mappings, reusable retargeting/recording/transport consumers, and a controlled setup-burden study. The evidence supports a scoped EuroXR medium-paper contribution: a concrete contract and adapter boundary for composing heterogeneous XR avatar-motion pipelines without making downstream consumers depend on SDK-specific motion records.
+UnifiedXRMotion argues that component availability should be treated as first-class runtime data in heterogeneous XR avatar-motion pipelines. Producers publish observed, inferred, replayed, synthetic, or retargeted components into a shared schema-defined representation, and consumers read only explicitly available components through region views. The Unity prototype demonstrates this contract with selected producer families, adapter mappings, reusable retargeting/recording/transport consumers, and a controlled setup-burden study. The contribution is not a new tracker, retargeter, inference model, or scheduler, but a scoped contract design showing how explicit component availability can connect heterogeneous motion producers to reusable avatar-motion consumers.
 
 \bibliographystyle{splncs04}
 \bibliography{bib/references}
