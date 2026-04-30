@@ -5,6 +5,7 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{url}
+\usepackage{tabularx}
 \graphicspath{{figures/}{figures/latency/}{figures/latency/figures/}}
 \urlstyle{rm}
 
@@ -47,7 +48,7 @@ Sparse avatar-motion reconstruction and motion priors have advanced rapidly~\cit
 
 The distinction is therefore not that UnifiedXRMotion introduces device abstraction, hand-joint tracking state, retargeting, or dataflow execution independently. Prior systems provide those capabilities at different layers: tracking middleware abstracts devices and transforms, OpenXR exposes source-specific tracking states within particular API families, and avatar-rigging systems retarget motion onto a chosen character representation. UnifiedXRMotion targets a narrower boundary that becomes important when XR pipelines combine sparse device tracking, articulated hands, vision landmarks, replay streams, inferred motion, and retargeted outputs. At this boundary, heterogeneous producers need a shared avatar-motion record with schema-defined slot identity, region views, and per-component availability, while downstream consumers need to read available components without depending on the producing SDK. This paper positions availability itself as the cross-source interface, rather than treating it as a source-local tracking state or an implicit failure case inside each consumer.
 
-Figure~\ref{fig:availability-boundary} illustrates this availability boundary using a concrete heterogeneous pipeline. In a source-specific implementation, hand tracking, vision landmarks, lower-body inference, and replay streams expose different notions of coverage, missing components, tracking state, or inferred output; that logic leaks into downstream consumers. UnifiedXRMotion moves the logic to the contract boundary: producers publish component values together with availability bits, and retargeting, recording, transport, or visualization consumers read schema-defined views using availability-gated access. The figure is conceptual; it does not imply that the contract encodes provenance, confidence, scheduling, or latency behavior.
+Figure~\ref{fig:availability-boundary} illustrates this availability boundary using a concrete heterogeneous pipeline. In a source-specific implementation, hand tracking, vision landmarks, lower-body inference, and replay streams expose different notions of coverage, missing components, tracking state, or inferred output; that logic leaks into downstream consumers. UnifiedXRMotion moves the logic to the contract boundary: producers publish component values together with availability bits, and retargeting, recording, transport, or visualization consumers read schema-defined views using availability-gated access.
 
 \begin{figure}[t]
     \centering
@@ -114,7 +115,7 @@ This distinction is essential for inferred and retargeted motion. A lower-body i
 \section{Heterogeneous Producers and Adapter Boundary}\label{sec:adapters}
 Producers publish motion into the contract. Device and SDK adapters are the boundary where native tracking outputs become contract records. Each adapter initializes or reads a source, maps native joint ordering into schema slots, converts coordinate conventions where needed, marks component availability, and publishes pose records. The adapter code remains vendor-specific wrapper and conversion logic; the reusable artifact is the boundary after publication, where downstream nodes depend on slot identity and component availability rather than native SDK records.
 
-The prototype exposes a minimal adapter interface through \texttt{ITrackingDeviceHandler}: initialization, a set of tracked schema slots, a tracking-information buffer, and a tracking update. Its producer portfolio includes OVR/Meta body and hand streams, Unity XR/OpenXR HMD, controller, and hand sources, XREAL/NRSDK and Vive hand sources, Mediapipe vision sources, Android-AR or scene-transform sources, replay streams, synthetic sources, and representative inferred or retargeted producers. Table~\ref{tab:producers} summarizes the evidence used in the medium-paper framing.
+The prototype exposes \texttt{ITrackingDeviceHandler}, a minimal adapter interface that provides initialization, tracked schema slots, a tracking-information buffer, and and a tracking update. Its producer portfolio includes OVR/Meta body and hand streams, Unity XR/OpenXR HMD, controller, and hand sources, XREAL/NRSDK and Vive hand sources, Mediapipe vision sources, Android-AR or scene-transform sources, replay streams, synthetic sources, and representative inferred or retargeted producers. Table~\ref{tab:producers} summarizes the evidence used in the medium-paper framing.
 
 \begin{table}[t]
 \caption{Producer and adapter evidence. The table reports selected implementation evidence, not broad device coverage.}\label{tab:producers}
@@ -123,7 +124,7 @@ The prototype exposes a minimal adapter interface through \texttt{ITrackingDevic
 \toprule
 Producer family & Source examples & Contract mapping & Important limitation \\
 \midrule
-Observed XR devices & Meta/OVR body and hand, Unity XR/OpenXR HMD/controllers/hands, Vive hands, XREAL hands. & Native joint IDs and device poses are mapped into full-body or region slots with per-component availability. & Adapter logic is SDK-specific; coverage is limited to selected source families. \\
+Observed XR devices & Meta/OVR body and hand, Unity XR/OpenXR HMD/controllers, (Vive) hands, XREAL hands. & Native joint IDs and device poses are mapped into full-body or region slots with per-component availability. & Adapter logic is SDK-specific; coverage is limited to selected source families. \\
 Vision sources & Mediapipe upper-body and hand landmarks. & Landmark positions are mapped into hand or upper-body slots; visibility is thresholded into binary availability. & Continuous confidence is quantized away; coordinate offsets remain adapter assumptions. \\
 Replay and synthetic sources & Recorded \texttt{PhysicBone} arrays, transform sources, dummy or mouse-driven inputs. & Publish the same slot records and flags as live sources. & Fidelity depends on the recorded stream or synthetic setup. \\
 Inferred producers & Codebook-style lower/upper-body regressors and filters. & Publish inferred components back into \texttt{KinematicBuffer<PhysicBone>} with availability flags. & Inference algorithm and model quality are not contributions; provenance is not encoded in the record. \\
@@ -179,7 +180,8 @@ UnifiedXRMotion is implemented as a Unity package. Motion slots are stored in pr
 
 At runtime, a producer updates a contract buffer for the active schema instance. Device adapters fill directly observed components, replay nodes copy recorded records, inference nodes publish estimated components, and retargeting nodes may republish transformed components into another region view. Updates are propagated through explicit sender/receiver events rather than through a global scheduler. Within each producer-triggered update path, downstream receivers consume the buffer state published by the upstream node during that event propagation. The implementation does not provide global graph scheduling, cross-frame synchronization, out-of-order reconciliation, provenance tracking, or automatic schema negotiation; those mechanisms are outside the scoped contract claim.
 
-The package includes representative nodes for filtering, IK, retargeting, codebook-style inference, record/replay, and optional FishNet-based transport. Textbook IK and prior codebook-style control provide algorithmic background~\cite{aristidou2011fabrik,starke2024categorical}; the contribution here is that these nodes can consume or publish the same validity-aware representation. Optional transport preserves flags and available components, but transport is treated as implementation support rather than the center of the paper.
+The package includes representative nodes for filtering, IK, retargeting,
+codebook style inference, record/replay, and optional FishNet-based transport. Textbook IK and prior codebook-style control provide algorithmic background~\cite{aristidou2011fabrik,starke2024categorical}; the contribution here is that these nodes can consume or publish the same validity-aware representation. Optional transport preserves flags and available components, but transport is treated as implementation support rather than the center of the paper.
 
 \section{Evaluation and Case Study Evidence}\label{sec:evaluation}
 The evaluation asks whether first-class component availability is instantiated in a working runtime, whether selected heterogeneous producers can be localized at adapters while consumers reuse contract views, and whether the resulting authoring workflow reduces procedural setup burden. It remains scoped to the medium-paper claim and does not measure tracking accuracy, retargeting quality, general developer productivity, broad device coverage, or display-response timing.
@@ -195,22 +197,47 @@ The vendor-SDK condition used Meta XR Core SDK, Meta XR Interaction SDK, Movemen
 To avoid confounding pipeline assembly with mesh-specific hand-axis calibration, custom hand retargeting and axis alignment were completed before each session. Participants were instructed to prioritize correctness and completion rather than speed. We therefore interpret completion time as procedural setup burden for the tested task, not as a general developer-speed estimate. The procedure also excludes adapter authoring and full integration of a previously unseen hand mesh.
 
 \begin{table}[t]
-\caption{Within-subjects setup-burden results ($N=19$). Values are mean $\pm$ standard deviation. NASA--TLX is the 0--100 workload score after reversing the performance subscale so that higher values consistently indicate higher workload. Completion time is interpreted as procedural setup burden for the tested Unity task.}\label{tab:user-results}
-\scriptsize
+\caption{Within-subjects setup-burden results ($N=19$). Values are mean $\pm$ standard deviation. NASA--TLX is the 0--100 workload score after reversing the performance subscale so that higher values consistently indicate higher workload. Completion time is interpreted as procedural setup burden for the tested Unity task.}
+\label{tab:user-results}
 \centering
-\begin{tabular}{@{}P{27mm}rrr@{}}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X
+                                >{\centering\arraybackslash}p{28mm}
+                                >{\centering\arraybackslash}p{24mm}
+                                >{\centering\arraybackslash}p{23mm}@{}}
 \toprule
 Statistic & Completion time (s) & NASA--TLX & SUS \\
 \midrule
-UnifiedXRMotion ($M\!\pm\!SD$) & $564.03\!\pm\!176.58$ & $30.53\!\pm\!17.55$ & $73.42\!\pm\!17.08$ \\
-Vendor SDK ($M\!\pm\!SD$) & $972.89\!\pm\!243.36$ & $49.74\!\pm\!18.29$ & $34.47\!\pm\!13.91$ \\
-95\% CI (UXM $-$ SDK) & $[-493.25,\,-324.48]$ & $[-24.87,\,-13.55]$ & $[28.69,\,49.21]$ \\
-$t(df)$ & $-10.18\,(18)$ & $-7.13\,(18)$ & $7.98\,(18)$ \\
-$p$ & $<.0001$ & $<.0001$ & $<.0001$ \\
-Hedges' $g_{\mathrm{av}}$ & $-1.84$ & $-1.03$ & $+2.39$ \\
+UnifiedXRMotion ($M\!\pm\!SD$)
+    & $564.03\!\pm\!176.58$
+    & $30.53\!\pm\!17.55$
+    & $73.42\!\pm\!17.08$ \\
+Vendor SDK ($M\!\pm\!SD$)
+    & $972.89\!\pm\!243.36$
+    & $49.74\!\pm\!18.29$
+    & $34.47\!\pm\!13.91$ \\
+95\% CI (UXM $-$ SDK)
+    & $[-493.25,\,-324.48]$
+    & $[-24.87,\,-13.55]$
+    & $[28.69,\,49.21]$ \\
+$t(df)$
+    & $-10.18\,(18)$
+    & $-7.13\,(18)$
+    & $7.98\,(18)$ \\
+$p$
+    & $<.0001$
+    & $<.0001$
+    & $<.0001$ \\
+Hedges' $g_{\mathrm{av}}$
+    & $-1.84$
+    & $-1.03$
+    & $+2.39$ \\
 \bottomrule
-\multicolumn{4}{@{}p{\textwidth}@{}}{Statistics are computed on paired differences from the supplied raw CSVs. The study supports setup burden in this prepared task; it does not establish general developer productivity or long-term maintainability.}
-\end{tabular}
+\multicolumn{4}{@{}p{\dimexpr\textwidth-2\tabcolsep\relax}@{}}{\footnotesize
+Statistics are computed on paired differences from the supplied raw CSVs. The study supports setup burden in this prepared task; it does not establish general developer productivity or long-term maintainability.}
+\end{tabularx}
 \end{table}
 
 Table~\ref{tab:user-results} shows lower completion time and lower workload for the UnifiedXRMotion condition, with higher SUS scores. The completion-time result had an order-sensitive pattern across counterbalanced orders (mean difference $-307.6$~s for AB and $-521.4$~s for BA; Welch test $t(16.94)=3.32$, $p=.0040$). Sequence sensitivity was not observed for NASA--TLX ($t(16.10)=-0.31$, $p=.763$) or SUS ($t(16.99)=1.53$, $p=.145$). The setup-burden claim is therefore useful but narrow: it supports the tested procedural configuration task, not broad claims about developer productivity.
