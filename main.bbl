@@ -3,6 +3,14 @@
 \providecommand{\urlprefix}{URL }
 \providecommand{\doi}[1]{https://doi.org/#1}
 
+\bibitem{ackermann2023arpatterns}
+Ackermann, P.: {AR Patterns}: Event-driven design patterns in creating
+  augmented reality experiences. In: Virtual Reality and Mixed Reality -- 20th
+  EuroXR International Conference, EuroXR 2023, Rotterdam, The Netherlands,
+  November 29--December 1, 2023, Proceedings. Lecture Notes in Computer
+  Science, vol. 14410, pp. 93--114. Springer, Cham (2023).
+  \doi{10.1007/978-3-031-48495-7_6}
+
 \bibitem{aristidou2011fabrik}
 Aristidou, A., Lasenby, J.: {FABRIK}: A fast, iterative solver for the inverse
   kinematics problem. Graphical Models  \textbf{73}(5),  243--260 (2011)

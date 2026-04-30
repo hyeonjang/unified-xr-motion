@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.16)  30 APR 2026 11:06
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.16)  30 APR 2026 11:32
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -316,11 +316,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 )) [1
 
-{C:/Users/master/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-
-LaTeX Warning: Citation `ackermann2023arpatterns' on page 2 undefined on input line 47.
-
-[2]
+{C:/Users/master/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2]
 <figures/availability_boundary.png, id=15, 1298.60156pt x 911.65594pt>
 File: figures/availability_boundary.png Graphic file (type png)
 <use figures/availability_boundary.png>
@@ -334,70 +330,34 @@ File: figures/fig2-kinematicbuffer.pdf Graphic file (type pdf)
 <use figures/fig2-kinematicbuffer.pdf>
 Package pdftex.def Info: figures/fig2-kinematicbuffer.pdf  used on input line 77.
 (pdftex.def)             Requested size: 326.29697pt x 175.69623pt.
-[4 <./figures/availability_boundary.png>]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[5 <./figures/fig2-kinematicbuffer.pdf>]
-Overfull \hbox (9.32043pt too wide) in paragraph at lines 124--125
-\OT1/cmr/m/n/10 streams, Unity XR/OpenXR HMD, con-troller, and hand sources, XREAL/NRSDK
- []
-
-
-Overfull \hbox (2.32039pt too wide) in paragraph at lines 124--125
-\OT1/cmr/m/n/10 and Vive hand sources, Me-di-aPipe vi-sion sources, Android-AR or scene-transform
- []
-
-
-Overfull \hbox (14.98244pt too wide) in paragraph at lines 133--133
-\OT1/cmr/m/n/7 HMD/controllers/hands, 
- []
-
-
-Overfull \hbox (0.82285pt too wide) in paragraph at lines 136--136
-\OT1/cmtt/m/n/7 KinematicBuffer<PhysicBone> 
- []
-
-[6] [7]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[8]
-Overfull \hbox (17.65486pt too wide) in paragraph at lines 194--195
-[]\OT1/cmr/m/n/10 The pack-age in-cludes rep-re-sen-ta-tive nodes for fil-ter-ing, IK, re-tar-get-ing, codebook-
- []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [9] [10] [11] (main.bbl
-Underfull \hbox (badness 10000) in paragraph at lines 25--28
+[4 <./figures/availability_boundary.png>] [5 <./figures/fig2-kinematicbuffer.pdf>] [6] [7] [8] [9] [10] (main.bbl
+Underfull \hbox (badness 10000) in paragraph at lines 33--36
 []\OT1/cmr/m/n/9 Khronos Group: Khronos re-leases OpenXR 1.0 spec-i-fi-ca-tion. $https :
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 25--28
+Underfull \hbox (badness 10000) in paragraph at lines 33--36
 \OT1/cmr/m/n/9 / / www . khronos . org / news / permalink / khronos-[]releases-[]openxr-[]1 . 0-[]speci^^Lcation$
  []
 
-[12]) [13] (main.aux)
+[11]) [12] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 2871 strings out of 467871
- 43643 string characters out of 5417892
- 468588 words of memory out of 5000000
- 31738 multiletter control sequences out of 15000+600000
+ 2870 strings out of 467871
+ 43637 string characters out of 5417892
+ 470549 words of memory out of 5000000
+ 31737 multiletter control sequences out of 15000+600000
  633295 words of font info for 60 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,13n,65p,1349b,360s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 57i,13n,65p,1406b,360s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\master\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm0900.pk><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx9.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi9.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/master/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on main.pdf (13 pages, 1448648 bytes).
+Output written on main.pdf (12 pages, 1443731 bytes).
 PDF statistics:
- 149 PDF objects out of 1000 (max. 8388607)
+ 145 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
