@@ -50,9 +50,9 @@ The distinction is therefore not that UnifiedXRMotion introduces device abstract
 
 Figure~\ref{fig:availability-boundary} illustrates this availability boundary using a concrete heterogeneous pipeline. In a source-specific implementation, hand tracking, vision landmarks, lower-body inference, and replay streams expose different notions of coverage, missing components, tracking state, or inferred output; that logic leaks into downstream consumers. UnifiedXRMotion moves the logic to the contract boundary: producers publish component values together with availability bits, and retargeting, recording, transport, or visualization consumers read schema-defined views using availability-gated access. The figure is conceptual and scopes the contrast to the contract boundary rather than provenance, confidence, scheduling, or latency behavior.
 
-\begin{figure}[!htbp]
+\begin{figure}[t]
     \centering
-    \includegraphics[width=0.86\textwidth]{availability_boundary.jpg}
+    \includegraphics[width=0.86\textwidth]{figures/availability_boundary.png}
     \caption{Conceptual contrast for first-class component availability. Source-specific pipelines push missing-component logic into consumers, with small axis glyphs indicating source-specific coordinate and layout conventions. UnifiedXRMotion moves availability to the contract boundary: producers publish values and availability bits, and consumers read views using availability-gated access.}
     \label{fig:availability-boundary}
 \end{figure}
@@ -72,14 +72,14 @@ where $S=\{s_0,\ldots,s_{n-1}\}$ is a finite set of motion slots, $P$ is an opti
 \end{equation}
 with $b_i^k\in\{0,1\}$. A consumer may read component $m_i^k$ only when $b_i^k=1$. The prototype implements this rule through \texttt{PhysicBone}, which stores pose fields and a \texttt{PoseFlag} bitmask, and through \texttt{KinematicBuffer<T>} and \texttt{BodyType} views over full-body, upper-body, lower-body, two-arm, two-hand, and hand regions.
 
-\begin{figure}[!htbp]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{fig2-kinematicbuffer.pdf}
 \caption{Prototype buffer and region-view instantiation of the contract. An active schema buffer is exposed through region views so that producers and consumers can operate on the subset they require without fixing the contract to one slot count.}
 \label{fig:contract}
 \end{figure}
 
-\begin{table}[!htbp]
+\begin{table}[h]
 \caption{Contract concepts and evidence scope. Validity denotes component availability, not correctness, confidence, or provenance.}\label{tab:contract}
 \scriptsize
 \begin{tabular}{@{}P{23mm}P{48mm}P{48mm}@{}}
@@ -95,7 +95,7 @@ Serialization & Optional transport writes the flag first and can omit unavailabl
 \end{tabular}
 \end{table}
 
-\begin{table}[!htbp]
+\begin{table}[h]
 \caption{Operational invariants used to keep the contract explicit. These are implementation-level obligations for the prototype, not claims of correctness, provenance, or uncertainty modeling.}\label{tab:invariants}
 \scriptsize
 \begin{tabular}{@{}P{28mm}P{45mm}P{46mm}@{}}
@@ -117,7 +117,7 @@ Producers publish motion into the contract. Device and SDK adapters are the boun
 
 The prototype exposes \texttt{ITrackingDeviceHandler}, a minimal adapter interface for initialization, tracked schema slots, a tracking-information buffer, and a tracking update. Its producer portfolio includes OVR/Meta body and hand streams, Unity XR/OpenXR HMD, controller, and hand sources, XREAL/NRSDK and Vive hand sources, MediaPipe vision sources, Android-AR or scene-transform sources, replay streams, synthetic sources, and representative inferred or retargeted producers. Table~\ref{tab:producers} summarizes the producer and adapter evidence used in the evaluation.
 
-\begin{table}[!htbp]
+\begin{table}[h]
 \caption{Producer and adapter evidence. The table reports selected implementation evidence, not broad device coverage.}\label{tab:producers}
 \scriptsize
 \begin{tabular}{@{}P{24mm}P{25mm}P{35mm}P{35mm}@{}}
@@ -139,7 +139,7 @@ The adapter boundary localizes several classes of heterogeneity: vendor joint or
 The strongest consumer evidence is the retargeting path. \texttt{RetargetSystem} reads \texttt{KinematicBufferView<PhysicBone>} instances and checks \texttt{PoseFlag} before assigning position or rotation to avatar transforms. If a component is unavailable, the assignment is skipped rather than silently using a default or stale source value. The same consumer dispatches across \texttt{BodyType} views such as full body, upper/lower body, two arms, and two hands, so the consuming code is organized around contract views rather than around a producing SDK.
 
 
-\begin{table}[!htbp]
+\begin{table}[h]
 \caption{Downstream consumers and evidence scope.}\label{tab:consumers}
 \scriptsize
 \begin{tabular}{@{}P{25mm}P{30mm}P{33mm}P{31mm}@{}}
@@ -158,7 +158,7 @@ The consumer evidence focuses on representative downstream paths rather than eve
 
 Table~\ref{tab:producer-consumer} makes the reuse claim explicit by linking producer families to the contract view consumed downstream. The table is not a device-coverage benchmark; it shows that different production paths can publish into the same record/view abstraction, after which consumers branch on availability and region view rather than on the native SDK record.
 
-\begin{table}[!htbp]
+\begin{table}[h]
 \caption{Producer-to-consumer reuse through shared contract views. Rows show representative paths that support the medium-paper claim; they do not imply universal source coverage or encoded provenance.}\label{tab:producer-consumer}
 \scriptsize
 \begin{tabular}{@{}P{28mm}P{24mm}P{28mm}P{39mm}@{}}
@@ -195,7 +195,7 @@ The vendor-SDK condition used Meta XR Core SDK, Meta XR Interaction SDK, Movemen
 
 To avoid confounding pipeline assembly with mesh-specific hand-axis calibration, custom hand retargeting and axis alignment were completed before each session. Participants were instructed to prioritize correctness and completion rather than speed. We therefore interpret completion time as procedural setup burden for the tested task, not as a general developer-speed estimate. The procedure also excludes adapter authoring and full integration of a previously unseen hand mesh.
 
-\begin{table}[!htbp]
+\begin{table}[t]
 \caption{Within-subjects setup-burden results ($N=19$). Values are mean $\pm$ standard deviation. NASA--TLX is the 0--100 workload score after reversing the performance subscale so that higher values consistently indicate higher workload. Completion time is interpreted as procedural setup burden for the tested Unity task.}
 \label{tab:user-results}
 \centering
