@@ -68,11 +68,17 @@ INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx9.tf
 INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\tcrm0900.tfm
 INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr12.tfm
 INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx12.tfm
-INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx10.tfm
 OUTPUT main.pdf
 INPUT C:\Users\master\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
 INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmti10.tfm
-INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmtt9.tfm
+INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx10.tfm
+INPUT .\figures\availability_boundary.png
+INPUT .\figures\availability_boundary.png
+INPUT .\figures\availability_boundary.png
+INPUT .\figures\availability_boundary.png
+INPUT .\figures\availability_boundary.png
+INPUT .\figures\availability_boundary.png
+INPUT .\figures\availability_boundary.png
 INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmtt10.tfm
 INPUT .\figures\fig2-kinematicbuffer.pdf
 INPUT .\figures\fig2-kinematicbuffer.pdf
@@ -125,5 +131,3 @@ INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\
 INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt10.pfb
 INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt8.pfb
 INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt8.pfb
-INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt9.pfb
-INPUT C:\Users\master\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt9.pfb

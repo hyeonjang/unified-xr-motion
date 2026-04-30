@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99e
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+Reallocating 'name_of_file' (item size: 1) to 9 items.
+The style file: splncs04.bst
+Reallocating 'name_of_file' (item size: 1) to 15 items.
+Database file #1: bib/references.bib
+Warning--I didn't find a database entry for "ackermann2023arpatterns"
+You've used 11 entries,
+            2850 wiz_defined-function locations,
+            664 strings with 7073 characters,
+and the built_in function-call counts, 6858 in all, are:
+= -- 562
+> -- 252
+< -- 9
++ -- 104
+- -- 92
+* -- 435
+:= -- 880
+add.period$ -- 23
+call.type$ -- 11
+change.case$ -- 92
+chr.to.int$ -- 0
+cite$ -- 11
+duplicate$ -- 578
+empty$ -- 608
+format.name$ -- 100
+if$ -- 1498
+int.to.chr$ -- 0
+int.to.str$ -- 11
+missing$ -- 122
+newline$ -- 39
+num.names$ -- 22
+pop$ -- 257
+preamble$ -- 1
+purify$ -- 68
+quote$ -- 0
+skip$ -- 171
+stack$ -- 0
+substring$ -- 349
+swap$ -- 322
+text.length$ -- 9
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 44
+warning$ -- 0
+while$ -- 51
+width$ -- 13
+write$ -- 124
+(There was 1 warning)
