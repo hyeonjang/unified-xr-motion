@@ -7,23 +7,11 @@
 Aristidou, A., Lasenby, J.: {FABRIK}: A fast, iterative solver for the inverse
   kinematics problem. Graphical Models  \textbf{73}(5),  243--260 (2011)
 
-\bibitem{cheymol2023beyond}
-Cheymol, A., Fribourg, R., L{\'e}cuyer, A., Normand, J.M., Argelaguet, F.:
-  Beyond my real body: Characterization, impacts, applications and perspectives
-  of ``dissimilar'' avatars in virtual reality. IEEE Transactions on
-  Visualization and Computer Graphics  \textbf{29}(11),  4426--4437 (2023)
-
 \bibitem{dai2024hmd}
 Dai, P., Zhang, Y., Liu, T., Fan, Z., Du, T., Su, Z., Zheng, X., Li, Z.:
   {HMD-Poser}: On-device real-time human motion tracking from scalable sparse
   observations. In: Proceedings of the IEEE/CVF Conference on Computer Vision
   and Pattern Recognition (CVPR). pp. 874--884 (2024)
-
-\bibitem{gao2025xrgo}
-Gao, S., Liu, J., Jiang, Q., Sinclair, F., Sentosa, W., Godfrey, P.B., Adve,
-  S.V.: {XRgo}: Design and evaluation of rendering offload for low-power
-  extended reality devices. In: Proceedings of the ACM Multimedia Systems
-  Conference (2025)
 
 \bibitem{jiang2022avatarposer}
 Jiang, J., Streli, P., Qiu, H., Fender, A., Laich, L., Snape, P., Holz, C.:
@@ -41,6 +29,11 @@ Jiang, J., Streli, P., Qiu, H., Fender, A., Laich, L., Snape, P., Holz, C.:
 \bibitem{openxr_ext_hand}
 {Khronos Group}: {XR}\_{EXT}\_hand\_tracking.
   \url{https://registry.khronos.org/OpenXR/specs/1.1/man/html/XR_EXT_hand_tracking.html}
+  (2025)
+
+\bibitem{meta_and_openxr_2025}
+{Meta Horizon}: Openxr support for meta quest headsets.
+  \url{https://developers.meta.com/horizon/documentation/native/android/mobile-intro/}
   (2025)
 
 \bibitem{newman2004ubiquitous}
@@ -70,28 +63,5 @@ Taylor, R.M., Hudson, T.C., Seeger, A., Weber, H., Juliano, J., Helser, A.T.:
   {VRPN}: A device-independent, network-transparent {VR} peripheral system. In:
   Proceedings of the ACM Symposium on Virtual Reality Software and Technology.
   ACM (2001)
-
-\bibitem{weidner2023avatarsagents}
-Weidner, F., Boettcher, G., Arevalo~Arboleda, S., Diao, C., Sinani, L., Kunert,
-  C., Gerhardt, C., Broll, W., Raake, A.: A systematic review on the
-  visualization of avatars and agents in {AR} \& {VR} displayed using
-  head-mounted displays. IEEE Transactions on Visualization and Computer
-  Graphics  \textbf{29}(5),  2596--2606 (2023). \doi{10.1109/TVCG.2023.3247072}
-
-\bibitem{xu2024mobileposer}
-Xu, V., Gao, C., Hoffmann, H., Ahuja, K.: {MobilePoser}: Real-time full-body
-  pose estimation and {3D} human translation from imus in mobile consumer
-  devices. In: Proceedings of the 37th Annual ACM Symposium on User Interface
-  Software and Technology (UIST). pp. 1--11 (2024)
-
-\bibitem{yang2024divatrack}
-Yang, D., Kang, J., Ma, L., Greer, J.D., Ye, Y., Lee, S.H.: {DivaTrack}:
-  Diverse bodies and motions from acceleration-enhanced three-point trackers.
-  Computer Graphics Forum  \textbf{43}(2) (2024). \doi{10.1111/cgf.15057}
-
-\bibitem{yun2023animationfidelity}
-Yun, H., Ponton, J.L., Andujar, C., Pelechano, N.: Animation fidelity in
-  self-avatars: Impact on user performance and sense of agency. IEEE
-  Transactions on Visualization and Computer Graphics  (2023)
 
 \end{thebibliography}
