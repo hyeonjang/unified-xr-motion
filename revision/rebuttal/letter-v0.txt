@@ -1,0 +1,82 @@
+Dear EuroXR Scientific Track Co-Chairs and Reviewers,
+
+리뷰어 분들의 세심하고 건설적인 의견에 감사드립니다.
+
+1. Scientific contribution & expanding related work (R1, R3, R4)
+
+missing data, validity flags, coordinate mapping, retargeting, incomplete skeleton
+등이 motion capture, animation, robotics 등에서 오랫동안 다뤄온 문제임을 인정합니다.
+다만 저희 contribution은 이를 각각의 system integration으로 해결했다는 것이 아니라,
+producer가 shared schema-defined representation에 availability-gated로 publish하고
+downstream consumer가 source에 의존하지 않고 재사용하는 runtime contract와 adapter
+boundary입니다. 그 실용적 목표는, 자신의 avatar를 표현(represent)하기 위해 end-user가
+vendor와 algorithm에 종속된 authoring과 code 작성을 반복해야 하는 부담을 줄이는
+것입니다. middleware가 device/transform을 추상화하더라도, 이 저작 단계의 부담은 여전히
+남습니다.
+
+따라서 이는 새 estimator/retargeter/IK 알고리즘이 아니라, partial component availability를
+producer-consumer boundary로 전달하는 systems/abstraction contribution이며, 그 평가 축은
+알고리즘적 신규성이 아니라 boundary의 설계적 타당성과 재사용 속성입니다(middleware·
+interchange 연구가 추상화 자체로 평가받는 것과 같은 맥락). 비자명한 설계 결정은
+availability를 source와 무관하게 first-class로 두는 것입니다. downstream consumer는 어떤
+SDK가 motion을 만들었는지가 아니라 어떤 component가 존재하는지에 따라 분기하므로, 작성
+당시 알지 못한 producer에 대해서도 동일 consumer가 재사용됩니다 — 이는 source별
+integration이 제공할 수 없는 속성입니다.
+
+R3의 제안에 따라 contribution list를 재구성하여(Sec. 1), reuse+setup evidence를 묶은
+기존 항목을 삭제하고 user study를 standalone contribution으로 promote했습니다. 또한
+시스템의 필요성을 분명히 하기 위해 sparse tracking과 VR social copresence related work를
+추가하고 VR avatar motion 논의를 재요약했습니다.
+
+2. Evaluation: user study description & general XR system (R1, R2, R4)
+
+user study 기재가 충분하지 않다는 의견을 반영하여, study의 condition과 절차를 정확히
+기재하고(N=19, informed consent 및 compensation 포함) UnifiedXRMotion과 vendor SDK의
+task를 비교한 테이블(Tab. 4)을 추가했습니다.
+이 within-subjects 실험은 availability와 adapter boundary로 구현된 reusable schema
+prototype이 setup-burden을 줄이는지를, 두 SDK에 대해 Custom-Hands와 Full-body를
+순차 authoring하는 방식으로 비교합니다. 공정성을 위해 condition order counterbalancing,
+simulator verification, hand-axis tuning 사전 처리를 명시했습니다. 해당 내용은 기존
+study guide에 포함된 것으로, scope 재정의나 추가 contribution을 derive하지 않습니다.
+
+평가가 좁다는 지적에 동의합니다. 본 연구는 일반적인 developer productivity,
+maintainability, runtime performance, motion quality, 광범위한 interoperability를
+주장하지 않으며, 이들은 XR system 전반을 평가하기 위해 필요하나 본 연구 범위 밖이므로
+그 부재를 limitation으로 밝혔습니다. 아울러 현재 record가 담지 않는 항목 — provenance,
+continuous confidence, timestamps, schema-version negotiation — 도 한계로 명시하였습니다.
+
+3. Details and E2E example (R2, R3, R4)
+
+구현 세부와 재현성 요청을 반영하여, adapter boundary와 schema 구조를 보여주는 figure를
+추가했습니다(Fig. 2): producer가 native 출력을 schema slot으로 매핑하고
+availability를 표시해 shared kinematic buffer에 publish하면, consumer가 buffer view를 통해
+per-component availability로 gated 접근하는 흐름입니다. 이는 PhysicBone/PoseFlag/
+KinematicBuffer 및 region view를 정의한 본문 수식·표와 함께 contract boundary를
+본문만으로 재현할 수 있게 합니다.
+
+한편 한 리뷰어께서는 기술적 세부(Sec. 3-6)를 supplementary로 옮겨 본문을 줄일 것을
+제안하셨습니다. 저희는 capability와 user study가 기술적 세부에 가려져서는 안 된다는
+취지에 동의합니다. 이에 user study 기술을 보강하고(Tab. 4) capability를 보여주는
+figure를 추가하는 한편, 반복적 표현을 정리하여 본문의 narrative 분량을 줄였습니다.
+다만 Sec. 3-6의 schema/adapter 세부를 supplementary로 이동하는 것은 같은 세부의
+보강을 요청하신 R3, R4의 의견과 상충하므로, 해당 세부는 본문에 유지하되 서술을
+간결화하는 방향으로 균형을 맞추었습니다.
+
+(calibration) calibration은 두 가지로 구분됩니다. tracking source 간 coordinate frame을
+정렬하는 room calibration은 실제 glue code에서 중요하나 본 연구와 별개의 문제로,
+UnifiedXRMotion은 이를 해결하지 않으며 source가 합의된 space에 정렬되어 있음을 전제로
+시작합니다(한계로 명시). 반면 avatar calibration(들어온 motion을 대상 avatar rig에 정렬)은
+retargeting logic을 구현하는 adapter boundary에서 처리하므로, availability와는 별개로 명시적으로
+다루어집니다.
+
+추가로, authoring pattern과 avatar-motion 결과를 보여주는 demonstration video를 제공합니다.
+여기에는 동일한 downstream chain을 소비하는 runtime source 교체가 포함됩니다.
+
+4. Minor writing fixes (R2, R4)
+
+지적해 주신 세부 표현들을 다음과 같이 수정하였습니다.
+- "Textbook IK"라는 명칭에 대해, 실제 알고리즘 명칭인 FABRIK으로 수정하고 해당
+  문장을 능동태로 다시 작성하였습니다.
+- FishNet 기반 transport에 대해, 누락되었던 인용을 추가하였습니다.
+- "selected/representative/scoped" 표현의 반복에 대해, 중복 서술을 정리하되 claim의
+  범위를 보호하는 scope 서술은 유지하였습니다.

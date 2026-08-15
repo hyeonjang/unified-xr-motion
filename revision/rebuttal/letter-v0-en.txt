@@ -1,0 +1,90 @@
+Dear EuroXR Scientific Track Co-Chairs and Reviewers,
+
+We thank the reviewers for their careful and constructive comments.
+
+1. Scientific contribution & expanding related work (R1, R3, R4)
+
+We agree that missing data, validity flags, coordinate mapping, retargeting, and
+incomplete skeletons are long-standing problems in motion capture, animation, and
+robotics. However, our contribution is not that we solve these through one combined
+system integration; it is a runtime contract and adapter boundary in which a producer
+publishes into a shared schema-defined representation in an availability-gated manner,
+and downstream consumers reuse it without depending on the source. The practical goal
+is to reduce the burden in which, to represent their own avatar, end-users must
+repeatedly write vendor- and algorithm-specific authoring and code. Even though
+middleware abstracts devices and transforms, this authoring-side burden remains.
+
+The contribution is therefore not a new estimator, retargeter, or IK algorithm, but a
+systems/abstraction contribution that carries partial component availability across a
+producer-consumer boundary. Its evaluation axis is not algorithmic novelty but the
+design soundness and reuse properties of the boundary, in the same spirit in which
+middleware and interchange abstractions are evaluated by the abstraction itself rather
+than by a new algorithm. The non-obvious decision is to make availability first-class
+and source-independent: downstream consumers branch on which components are present,
+not on which SDK produced them, so one consumer is reused across producers it was not
+written for, which is what a per-source integration cannot offer.
+
+Following R3's suggestion, we restructured the contribution list (Sec. 1): we removed
+the item that bundled reuse and setup evidence, and promoted the user study to a
+standalone contribution. We also added related work on sparse tracking and VR social
+co-presence and re-summarized the discussion of VR avatar motion to make the need for
+the system explicit.
+
+2. Evaluation: user study description & general XR system (R1, R2, R4)
+
+Addressing the comment that the user study was insufficiently described, we now state
+the study conditions and procedure precisely (N=19, with informed consent and
+compensation) and add a table comparing the UnifiedXRMotion and vendor-SDK tasks
+(Tab. 4). This within-subjects study compares
+whether the reusable schema prototype, implemented through availability and the adapter
+boundary, reduces setup burden, by sequentially authoring Custom-Hands and Full-body for
+the two SDKs. For fairness, we specify condition-order counterbalancing, simulator
+verification, and the pre-completion of hand-axis tuning. This content was already part
+of the existing study guide; it does not redefine scope or derive an additional
+contribution.
+
+We agree that the evaluation is narrow. This work does not claim general developer
+productivity, maintainability, runtime performance, motion quality, or broad
+interoperability; these are needed to evaluate an XR system in general but are outside
+our scope, and we state their absence as a limitation. We also note as limitations the
+items the current record does not encode: provenance, continuous confidence, timestamps,
+and schema-version negotiation.
+
+3. Details and E2E example (R2, R3, R4)
+
+Addressing the request for more implementation detail and reproducibility, we added a
+figure showing the adapter boundary and schema structure (Fig. 2): a producer maps its
+native output to schema slots, marks availability, and publishes into a shared kinematic
+buffer, and a consumer then reads through the buffer view with per-component
+availability-gated access. Together with the equations and tables defining
+PhysicBone/PoseFlag/KinematicBuffer and region views, this allows the contract boundary
+to be reproduced from the paper alone.
+
+One reviewer suggested moving the technical detail (Sec. 3-6) to supplementary material
+to shorten the body. We agree that the capabilities and user study should not be
+overshadowed by technical detail. We therefore expanded the user-study description
+(Tab. 4), added a figure showing the capability, and tightened repetitive wording to
+reduce the narrative volume. However, moving the schema/adapter detail of Sec. 3-6 to
+supplementary would conflict with R3 and R4, who requested more of that same detail; we
+therefore kept it in the body but made the exposition more concise.
+
+On calibration, we distinguish two senses. Room calibration, which aligns the coordinate
+frames across tracking sources, is important in real glue code but is a separate problem
+from this work: UnifiedXRMotion does not solve it and begins from the assumption that
+sources are aligned to an agreed space (stated as a limitation). Avatar calibration
+(aligning incoming motion to the target avatar rig), by contrast, is handled at the
+adapter boundary that implements the retargeting logic, and is therefore addressed
+explicitly, separately from availability.
+
+We additionally provide a demonstration video showing the authoring pattern and the
+avatar-motion result, including a runtime source swap consuming the same downstream
+chain.
+
+4. Minor writing fixes (R2, R4)
+
+We revised the noted wording as follows.
+- For the name "Textbook IK," we corrected it to the actual algorithm name, FABRIK, and
+  rewrote the sentence in the active voice.
+- For the FishNet-based transport, we added the missing citation.
+- For the repetition of "selected/representative/scoped," we removed redundant phrasing
+  while keeping the scope statements that protect the claims.

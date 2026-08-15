@@ -1,0 +1,56 @@
+% =====================================================================
+% DETAILED micro-action task analysis (BACKING REFERENCE, not in the paper).
+% The paper (main-rebuttal.tex) carries a guide-based, purpose-first version
+% WITHOUT per-cell counts, because micro-action counts are hard to prove from
+% the article alone. This file keeps the counted version for our own record /
+% appendix / reviewer reply if pressed for the quantitative breakdown.
+%
+% Source: study task guide (unifiedxrmotion-uxstudy-2025 README), verbatim;
+% cross-checked against the official Meta manuals (developers.meta.com).
+% Each row = one setup step; trailing (n) = micro-actions it expands to.
+% Counts reconcile: UnifiedXRMotion 13 (7 hands + 6 body); Vendor 29 (18 + 11).
+% Every (n) is grounded in the named sub-actions shown in the cell.
+% Requires: booktabs, tabularx, array, multirow, graphicx, P{} column type.
+% =====================================================================
+\begin{table}[t]
+	\caption{\radd{Detailed task analysis of the prepared setup workflow (study
+	task guide, verbatim; cross-checked against the official Meta manuals). Each
+	row is one setup step; the trailing $(n)$ is the micro-actions it expands to,
+	so the per-region totals are auditable. UnifiedXRMotion repeats one
+	\emph{avatar\,$\to$\,producer\,$\to$\,retargeter\,$\to$\,connect} pattern for
+	both regions; the vendor SDK uses different mechanisms for hands and body,
+	several repeated per hand, and the body wizards expand to the multi-stage
+	editors counted here (italicized stages). Hand-axis retargeting was
+	pre-completed for the vendor SDK, so it appears in neither column.}}
+	\label{tab:task-analysis-detail}
+	\centering
+	\scriptsize
+	\setlength{\tabcolsep}{4pt}
+	\renewcommand{\arraystretch}{1.1}
+	\begin{tabularx}{\textwidth}{@{}c X X@{}}
+		\toprule
+		 & UnifiedXRMotion (Task A) & Vendor SDK (Task B) \\
+		\midrule
+		\multirow{7}{*}{\rotatebox{90}{\textbf{Hands}}}
+		 & Attach \texttt{Motion\,Avatar} to a custom hand avatar \hfill(1)               & Add \texttt{OVRCameraRig} to scene root \hfill(1) \\
+		 & Set \texttt{Body\,Type\,=\,Two\,Hands} \hfill(1)                               & Add \texttt{OVRInteractionComprehensive}; keep \texttt{OVRHands}; set rig ref \hfill(3) \\
+		 & Add \texttt{MotionSystem} prefab \hfill(1)                                     & Add synthetic hands (\texttt{OVRLeftHandSynthetic}, \texttt{OVRRightHandSynthetic}) \hfill(2) \\
+		 & Add producer; add retargeter \hfill(2)                                         & Delete 4 default hand visuals \hfill(4) \\
+		 & Add retargeter to \texttt{Input\,Motions}; set \texttt{Input\,Motion} \hfill(2)& Reparent custom hand meshes (L,R) \hfill(2) \\
+		 &                                                                                & Configure hand visuals, per hand \hfill(4) \\
+		 &                                                                                & Bind \texttt{Source\,=\,OVRHands}, per hand \hfill(2) \\
+		\midrule
+		\multirow{5}{*}{\rotatebox{90}{\textbf{\,Body}}}
+		 & Attach \texttt{Motion\,Avatar} to a custom humanoid avatar \hfill(1)           & Set \texttt{OVRManager} body-tracking flags \hfill(3) \\
+		 & Add \texttt{MotionSystem} prefab \hfill(1)                                     & Retargeting Config.\ Editor wizard \hfill(5) \\
+		 & Add producer; add retargeter \hfill(2)                                         & \quad\textit{(T-Pose, Min align, Max align, scale, validate)} \hfill \\
+		 & Add retargeter to \texttt{Input\,Motions}; set \texttt{Input\,Motion} \hfill(2)& Add Character Retargeter wizard \hfill(3) \\
+		 &                                                                                & \quad\textit{(add component, \texttt{OVRBody}, skeleton type; twist optional, uncounted)} \hfill \\
+		\midrule
+		\multicolumn{1}{@{}c}{\textbf{Pattern}}
+		 & One reused pattern (hands = body) & Two mechanisms (hands $\neq$ body); 3 authoring surfaces \\
+		\multicolumn{1}{@{}c}{\textbf{Micro-actions}}
+		 & \textbf{13} (7 hands, 6 body) & \textbf{29} (18 hands, 11 body) \\
+		\bottomrule
+	\end{tabularx}
+\end{table}

@@ -1,0 +1,260 @@
+Dear Authors,
+Attached you find the complete reviews. We apologize for the delay and hope that it has not caused too much incontinences for you.
+----
+Thank you again for submitting your paper to EuroXR 2026!
+
+We are now entering the rebuttal and revision phase of the review process. This phase will give you the opportunity to respond to the reviewers' comments, clarify any potential misunderstandings and revise your submission.
+
+Please note that, in the end (after the second deadline), about 1/3 of all the submitted papers will be accepted. Currently, the scores over all submitted papers are distributed:
+
+Avg. score <= 3 : 5 Papers
+Avg. score 3 to <=4.4 : 14 Papers
+Avg. score 4.4 to <=5.5 : 9 Papers
+Avg. score >5.5 : 10 Papers
+
+This will allow you to assess how much effort you want to put into your rebuttal.
+
+If you decide to respond, please upload in the submission system:
+*Summary of changes made in the paper
+*The revised paper HIGHLIGHTING the made changes
+*A clean version of the revised paper
+
+Note. As the revisions should have the character of a minor revision, no new data collections or implementations may be added in the revised papers.
+
+https://srmv2.eg.org/COMFy/Conference/EuroXR_2026_1
+
+The detailed reviews are listed below.
+
+The deadline for submitting rebuttals is July 2nd, 2026.
+
+The Scientific Track Co-Chairs of EuroXR 2026,
+Mario Lorenz, TU Chemnitz, Germany
+Gabriel Zachmann, University of Bremen, Germany
+Rachel Farrell, UCD, Dublin, Ireland	
+Voicu Popescu, Purdue University, USA
+Maki Sugimoto, Keio University, Japan
+Patrick Bourdot, CNRS & Universite Paris-Saclay, France
+
+
+-------------------- Chair Decision --------------------
+
+-
+
+
+
+-------------------- Review 1 --------------------
+
+Overall Recommendation: 4 (4 - dubious - not quite acceptable)
+Evaluation Confidence: 4 (4 - Pretty confident, I know this area well)
+
+Summary: The paper presents UnifiedXRMotion, a Unity-based runtime contract for heterogeneous XR avatar-motion pipelines. The core idea is to represent skeletal motion through schema-defined slots and per-component availability flags, allowing producers such as XR trackers, vision-based landmarks, replay streams, inferred motion, and retargeted outputs to publish into a shared representation. Consumers then read region views and gate access based on availability rather than depending on SDK-specific records.
+
+The paper contributes a software abstraction, selected producer/consumer paths, and a small setup-burden study comparing the proposed workflow against a vendor-SDK setup. The contribution is relevant to XR avatar-motion infrastructure, but I am not fully convinced that it establishes a sufficiently novel scientific contribution for the scientific track.
+
+
+Clarity of Exposition: The paper is clearly written and carefully scoped. The authors explain the contract, producer boundary, consumer reuse, and limitations in a structured way. The figures and tables are helpful.
+
+However, the terminology is somewhat misleading. The paper uses “validity-aware,” but the system mainly represents binary component availability. It does not encode validity in the stronger sense of confidence, provenance, freshness, source type, or correctness.
+
+
+Technical Soundness: The implementation appears technically coherent, and the proposed abstraction is useful for XR development. Separating component values from component availability is a reasonable design choice.
+
+The main concern is novelty and depth. Heterogeneous motion streams, missing components, validity flags, coordinate mappings, retargeting, and incomplete skeletal data are long-standing problems in motion capture, animation, biomechanics, robotics, and tracking middleware. The paper does not sufficiently establish what is scientifically new beyond the application of these ideas to a Unity/XR avatar-motion framework.
+
+
+Quality of References: The paper cites relevant XR middleware, tracking, avatar motion, and retargeting work. However, the related work is too narrow for the novelty claim. It should engage more deeply with prior work from motion capture, animation systems, biomechanics, robotics, and skeletal data interchange, where similar problems have been studied for decades.
+
+Without this broader positioning, it is difficult to judge whether the proposed contract is a novel research result or mainly a practical software abstraction.
+
+
+Reproducibility: The contract and implementation are described reasonably well, and the promised Unity package and study materials would help with reproduction. 
+
+
+Explanation of Recommendation: I recommend “dubious, not quite acceptable.” The paper is relevant, technically coherent, and potentially useful for XR avatar-motion development. The authors are also careful in limiting some claims, which I appreciate.
+
+However, I am not convinced that the paper provides a sufficiently strong novel research contribution for the scientific track. The central idea—representing missing or available motion components explicitly—is useful, but the broader problem is not new. Similar issues have existed for a long time in motion capture, animation, biomechanics, robotics, and tracking middleware. The paper needs to position itself more clearly against this broader body of work and explain what is scientifically novel.
+
+The evaluation is also narrow. The setup-burden study supports the claim that this prepared Unity task was easier with the proposed workflow, but it does not establish broader developer productivity, maintainability, runtime performance, motion quality, or general interoperability.
+
+Overall, I see this as a useful engineering framework, but not yet as a sufficiently mature scientific contribution. A future version should strengthen the novelty argument, broaden the related work, clarify the “validity” terminology, and evaluate the framework beyond one prepared Unity setup task.
+
+
+-------------------- Review 2 --------------------
+
+Overall Recommendation: 5 (5 - marginal - only just acceptable)
+Evaluation Confidence: 4 (4 - Pretty confident, I know this area well)
+
+Summary: The paper describes a way to make different XR avatar and
+motion-tracking systems work together more easily. A single avatar
+might use different data sources, and it is important to be able to
+mix these at run-time. The authors demonstrate a toolkit and then
+evaluate it in a user study.
+
+
+
+Clarity of Exposition: Yes, but there is an imbalance in the material in that technical details are given in too much detail and the capabiltiies and user study are under-represented.
+
+
+Technical Soundness: Yes, the system seems sounds and code was provided.
+
+
+Quality of References: OK.
+
+
+Reproducibility: Yes, though we would need to see specific examples.
+
+
+Explanation of Recommendation: 
+
+Main Comment
+------------
+
+The system described seems to solve a practical problem that many
+developers have. As a system it seems well designed. However, the
+authors have not clearly demonstrated the capabilities of the system;
+I would strongly suggest to have practical examples within the paper
+to highlight the capabilities, otherwise it will have little impact as
+readers will not know what exact problems it can solve. Also the study
+is very poorly described with multiple missing details. This must be
+revised before acceptane. A video of demonstrations would make the
+submission much stronger
+
+
+Minor Comments
+--------------
+
+To make this point "In practice these stages are often tied to one SDK
+or one avatar asset. " it would be good to describe an example SDK.
+
+My experience of this problem is not really availability of the
+different tracking slots, but understanding the relationship of the
+different tracking coordinates; most glue code includes a calibration
+step or assumes a room transform (which might be a one time
+configuration per tracking or data source).
+
+This doesn't make sense grammatically "Textbook IK [2], codebook-style
+inference inspired by prior work [11], and retargeting components are
+used here as representative nodes that consume and republish the same
+motion contract". 
+
+Where does the name "Textbook IK" come from: the authors call their
+algorithm FABRIK (this happens more than once in the paper).
+
+Then "EuroXR" in the next sentence?
+
+
+The technical description is clear and easy to follow, but perhaps
+overly detailed for an academic paper; it could be supplemental
+material and the paper shortened to describe the requirements and
+features.
+
+What is "FishNet"? Provide a citation. DId you mean FISHNet?
+
+"Textbook IK and prior codebook-style control provide algorithmic
+background " would be better written in an active voice as the grammar
+is difficult.
+
+
+The evaluation needs a higher level introduction to the purpose before
+launching into software terminology.
+
+"The evaluation follows the evidence chain implied by the contract" is
+hard to understand, re-write it in plainer English and frame it within
+a context of what the purpose of this piece of evaluation is.
+
+
+The "Setup-burden study" is missing key pieces of information, such as
+participant numbers, ethics permissions, full study materials, etc. I
+would suggest the authors significantly expand this technical, and
+move some of the technical detail in 3,4,5,6 to supplemental material.
+
+I missing from the evaluation, some statement about practical
+demonstrations and examples of use. 
+
+
+I think the paper must have videos of the results showing simple
+capabilities of the system.
+
+
+
+
+-------------------- Review 3 --------------------
+
+Overall Recommendation: 7 (7 - good)
+Evaluation Confidence: 3 (3 - Moderately confident, I know as much as most)
+
+Summary: This paper presents UnifiedXRMotion, a systems design for unifying the heterogeneous data streams that feed XR avatar motion pipelines (directly observed tracking, vision-based landmarks, inferred body motion, replay streams, synthetic inputs, and retargeted outputs). The core design decision is to make component availability first-class runtime data, separated from component values: producers publish into a schema-defined skeletal representation and mark which components are available, and consumers read region views and gate access using availability bits rather than source-specific records. Provenance remains implicit in the producing node. The evaluation of the system covers implementation evidence, selected producers and reusable consumers, representative producer-to-consumer paths, and a within-subjects Unity setup-burden study.
+
+# Review Overview
+
+## Strengths
+
++ The motivation is clear and the problem is important to address. Avatar motion pipeline heterogeneity is a real pain point and the contribution is relevant to the XR community.
++ The system is well contextualized with respect to existing XR APIs and tracking middleware (OpenXR, VRPN, OpenTracker, Ubiquitous Tracking), and these are good reference points to connect to.
+
+## Weaknesses
+
+- The Related Work is thin and would benefit from broader coverage of avatars in VR and their role in social presence.
+
+
+Clarity of Exposition: - The first listed contribution overlaps substantially with the other two and could be folded into one of them. The within-subjects validation study would be better presented as a standalone contribution. Restructuring the contribution list along these lines would make the distinct contributions easier for the reader to identify.
+
+
+Technical Soundness: The paper appears to be technically sound.
+
+
+Quality of References: - The Related Work section is somewhat thin; twelve references is on the small side for a systems paper of this scope. It would be helpful to expand the discussion to include additional work on avatars in VR, their uses, and their importance for social presence, in order to provide more context for the reader on why unified avatar motion pipelines matter.
+- Additionally, some other references that seem related to the present work:
+  * Mollyn et al. "IMUPoser: Full-Body Pose Estimation using IMUs in Phones, Watches, and Earbuds." https://dl.acm.org/doi/10.1145/3544548.3581392
+  * Gonzales et al. "Intent-driven input device arbitration for XR." https://dl.acm.org/doi/full/10.1145/3613905.3650758
+
+
+
+Reproducibility: The paper should include some more details about the implementation of the system.
+
+
+Explanation of Recommendation: The work appears fundamentally sound and I am generally on board with it. I lean toward accepting this paper subject to revisions.
+
+# Explanation of Recommendation
+
+The paper addresses an important and clearly motivated problem in XR avatar motion pipelines, and the systems design is well situated with respect to OpenXR and earlier VR middleware. The contribution will be of value to the XR development community.
+
+The main suggestions are: (1) restructure the contribution statement so the within-subjects validation reads as a standalone contribution and the first listed item is folded into the others; (2) expand the Related Work, including broader coverage of avatars in VR and social presence, and incorporating the references suggested above.
+
+All of the critiques above should be addressable through writing alone. On that basis I lean toward acceptance subject to these revisions.
+
+
+-------------------- Review 4 --------------------
+
+Overall Recommendation: 7 (7 - good)
+Evaluation Confidence: 4 (4 - Pretty confident, I know this area well)
+
+Summary: The paper presents UnifiedXRMotion, a Unity-based runtime contract for heterogeneous XR avatar-motion pipelines that separates skeletal slot identity and pose values from explicit per-component availability flags. Its core idea is that observed, inferred, replayed, synthetic, and retargeted motion sources can publish into a shared schema-defined representation, while downstream consumers such as retargeters, recorders, filters, and transport utilities read only components marked available.
+
+Its main contributions to computer graphics are: (1) a schema-parameterized avatar-motion representation with first-class component availability, (2) an adapter boundary for bringing heterogeneous XR, vision, replay, synthetic, inferred, and retargeted producers into that representation, (3) reusable availability-gated consumers via region views, and (4) prototype evidence, including producer/consumer paths and a small within-subjects Unity setup-burden study, that this contract can reduce configuration burden for the tested avatar setup workflow.
+
+
+Clarity of Exposition: It is generally clear. However, it could be improved by reducing repetition around “selected/representative/scoped” evidence, giving a more concrete end-to-end example earlier, and making the distinction between availability, confidence, and provenance more immediately explicit.
+
+
+Technical Soundness: The paper appears technically sound as a scoped systems/prototype contribution.
+
+
+Quality of References: Although there are several papers that the authors could cite. I list some papers below, but there is no need for the authors to cite them.
+
+1. Ahuja, K., Ofek, E., Gonzalez-Franco, M., Holz, C., & Wilson, A. D. (2021). Coolmoves: User motion accentuation in virtual reality. Proceedings of the ACM on Interactive, Mobile, Wearable and Ubiquitous Technologies, 5(2), 1-23.
+2. Yang, D., Kim, D., & Lee, S. H. (2021, May). Lobstr: Real‐time lower‐body pose prediction from sparse upper‐body tracking signals. In Computer Graphics Forum (Vol. 40, No. 2, pp. 265-275).
+3. Winkler, A., Won, J., & Ye, Y. (2022, November). Questsim: Human motion tracking from sparse sensors with simulated avatars. In SIGGRAPH Asia 2022 conference papers (pp. 1-8).
+4. Mousas, C. (2017). Full-body locomotion reconstruction of virtual characters using a single inertial measurement unit. Sensors, 17(11), 2589.
+5. Jiang, J., Streli, P., Meier, M., & Holz, C. (2024, September). Egoposer: Robust real-time egocentric pose estimation from sparse and intermittent observations everywhere. In European Conference on Computer Vision (pp. 277-294). Cham: Springer Nature Switzerland.
+6. Huang, Y., Kaufmann, M., Aksan, E., Black, M. J., Hilliges, O., & Pons-Moll, G. (2018). Deep inertial poser: Learning to reconstruct human pose from sparse inertial measurements in real time. ACM Transactions on Graphics (TOG), 37(6), 1-15.
+
+
+Reproducibility: The authors provided the Unity project, so I guess it is.
+
+
+Explanation of Recommendation: The authors make a clear and useful systems contribution. The main strength is that the work identifies a real pain point in computer graphics and XR pipelines and proposes a coherent abstraction that can make downstream avatar consumers more reusable. The prototype evidence, producer/consumer traceability, and setup-burden study support the paper’s scoped claim that availability-gated views can reduce configuration burden in a prepared Unity workflow.
+
+The weaknesses are mostly about scope and presentation rather than the core idea. The paper is careful not to overclaim, but some limitations are important, such as the evaluation does not measure motion quality, tracking accuracy, latency, broad device coverage, long-term maintainability, or the cost of writing new adapters; the current record also omits provenance, continuous confidence, timestamps, and schema-version negotiation, all of which matter in realistic XR systems. I would encourage the authors to strengthen the paper by adding a concrete end-to-end example early in the paper, considering expanding the related work on sparse XR pose reconstruction and avatar-motion systems, specifying more adapter/schema details for reproducibility, and discussing how the contract could evolve to represent confidence and provenance rather than only binary availability.
+
+Overall, the submission has good potential impact because it contributes a reusable data-contract perspective for XR avatar motion rather than another source-specific tracking or retargeting method. 
