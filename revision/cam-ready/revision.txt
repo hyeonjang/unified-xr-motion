@@ -1,0 +1,192 @@
+Dear Author(s),
+
+we are happy to inform you that your paper was accepted for publication at EuroXR 2026. This year we received a record of 75 submissions (both tracks) from which 23 were selected.
+This decision is based on the reviews, and the discussion among the program co-chairs.
+
+We expect you to address all the issues reviewers may have found in your submission.
+
+Please upload your camera-ready version by Sep 07th.
+
+You can find the instructions for preparing your paper at:
+ https://www.euroxr.org/conference-2026/calls-and-guidelines/scientific-track
+
+Please remember to sign the Consent-to-Publish form, which is available from the website: https://www.springer.com/gp/computer-science/lncs/conference-proceedings-guidelines.
+The direct link is: https://resource-cms.springernature.com/springer-cms/rest/v1/content/19790018/data/SNCS_ProceedingsPaper_LTP_ST_SN_Switzerland 
+
+We encourage all authors to obtain and enter their ORCID number (see www.orcid.org).
+
+Please upload all files (pdf, latex, license to publish, optional supplement matierial) as a SINGLE zip file.
+
+We are looking forward to seeing you at the EuroXR 2026 conference in November!
+
+Kind regards,
+Scientific Program chairs.
+
+Mario Lorenz, TU Chemnitz, Germany
+Gabriel Zachmann, University of Bremen, Germany
+Rachel Farrell, UCD, Dublin, Ireland
+Voicu Popescu, Purdue University, USA
+Maki Sugimoto, Keio University, Japan
+Patrick Bourdot, CNRS & Universite Paris-Saclay, France
+
+-------------------- Review 1 --------------------
+
+Overall Recommendation: 4 (4 - dubious - not quite acceptable)
+Evaluation Confidence: 5 (5 - Extremely confident, I consider myself an expert)
+
+Summary: 
+
+
+Clarity of Exposition: 
+
+
+Technical Soundness: 
+
+
+Quality of References: 
+
+
+Reproducibility: 
+
+
+Explanation of Recommendation: I consider the paper generally in scope for EuroXR, since it addresses XR avatar-motion infrastructure, heterogeneous tracking inputs, runtime motion representation, and authoring workflows. Systems papers can fit the scientific track when they provide a clear XR technology contribution and novel research results.
+
+However, I remain unconvinced that this submission establishes a sufficiently strong scientific contribution. The revised paper presents a useful Unity/XR software abstraction based on schema-defined skeletal slots and binary component availability, but the underlying problems of heterogeneous motion streams, missing components, validity flags, coordinate mappings, and retargeting are long-standing in motion capture, animation, robotics, biomechanics, and tracking middleware. The paper does not sufficiently explain what is scientifically novel beyond applying these ideas to an XR avatar-motion framework.
+
+The revision improves clarity and narrows the claims, especially by framing the evaluation as a scoped setup-burden study rather than a broad claim about developer productivity. Nevertheless, the contribution still reads more as a practical engineering framework than as a mature research result for the scientific track. I therefore maintain my recommendation of “dubious, not quite acceptable.”
+
+
+-------------------- Review 2 --------------------
+
+Overall Recommendation: 5 (5 - marginal - only just acceptable)
+Evaluation Confidence: 4 (4 - Pretty confident, I know this area well)
+
+Summary: The paper describes a way to make different XR avatar and
+motion-tracking systems work together more easily. A single avatar
+might use different data sources, and it is important to be able to
+mix these at run-time. The authors demonstrate a toolkit and then
+evaluate it in a user study.
+
+
+
+Clarity of Exposition: OK.
+
+
+Technical Soundness: Yes, the system seems sounds and code was provided.
+
+
+Quality of References: OK.
+
+
+Reproducibility: Yes, though we would need to see specific examples.
+
+
+Explanation of Recommendation: 
+The rebuttal was missing a commentary on the changes which would have helped understand if all the points in the reviews were covered.
+
+The paper does not report that the study
+was approved by an ethics review board. If the authors cannot confirm
+that it was approved, the paper should just be rejected.
+
+
+The study description still misses significant details. Age of
+participants; the population from which they were recruited and the
+argument that this is representatives; the gender split.
+
+Please describe the measures and hypotheses explicitly.
+
+"Table 5 shows lower completion time and lower workload for the
+UnifiedXRMotion condition, with higher SUS scores. " Do not present
+such statements before the stastical significance analysis. One might
+joint point at that table showing the descriptive statistics.
+
+For any analysis please present the verification steps that the data
+fits the assumption of the statistical test used. 
+
+Please present both main effects you are relying on, and order
+effects. Please verify that the correct repeated-measure statistics
+are used (e.g. mixed ANOVA, since you are comparing within
+participants, but also an order effect).
+
+This "The completion-time result had an order-sensitive pattern across
+counterbalanced orders (mean difference -307.6 s for AB and -521.4 s
+for BA; Welch test t(16.94) = 3.32, p = .0040)." doesn't fully explain
+the interaction between effect and order. One might do a regression
+here to get the relative impact sizes.
+
+
+
+
+
+
+-------------------- Review 3 --------------------
+
+Overall Recommendation: 7 (7 - good)
+Evaluation Confidence: 3 (3 - Moderately confident, I know as much as most)
+
+Summary: This paper presents UnifiedXRMotion, a systems design for unifying the heterogeneous data streams that feed XR avatar motion pipelines (directly observed tracking, vision-based landmarks, inferred body motion, replay streams, synthetic inputs, and retargeted outputs). The core design decision is to make component availability first-class runtime data, separated from component values: producers publish into a schema-defined skeletal representation and mark which components are available, and consumers read region views and gate access using availability bits rather than source-specific records. Provenance remains implicit in the producing node. The evaluation of the system covers implementation evidence, selected producers and reusable consumers, representative producer-to-consumer paths, and a within-subjects Unity setup-burden study.
+
+# Review Overview
+
+## Strengths
++ The motivation is clear and the problem is important to address. Avatar motion pipeline heterogeneity is a real pain point and the contribution is relevant to the XR community.
++ The system is well contextualized with respect to existing XR APIs and tracking middleware (OpenXR, VRPN, OpenTracker, Ubiquitous Tracking), and these are good reference points to connect to.
+
+The authors addressed my comments/critiques from the first review cycle.
+
+
+Clarity of Exposition: Clear exposition, in my view it is improved after the revisions.
+
+
+Technical Soundness: The paper appears to be technically sound.
+
+
+Quality of References: The references seem fine. 18 references total still seems low, and it would probably help to include/discuss the references listed by another review (I do not see all of those ones included in this revision despite their relevance).
+
+
+Reproducibility: Reproducibility was improved this cycle with more system details provided.
+
+
+Explanation of Recommendation: The work appears fundamentally sound. The revisions were adequate. I recommend acceptance.
+
+
+-------------------- Review 4 --------------------
+
+Overall Recommendation: 6 (6 - acceptable)
+Evaluation Confidence: 4 (4 - Pretty confident, I know this area well)
+
+Summary: The paper presents UnifiedXRMotion, a Unity-based runtime contract for heterogeneous XR avatar-motion pipelines that separates skeletal slot identity and pose values from explicit per-component availability flags. Its core idea is that observed, inferred, replayed, synthetic, and retargeted motion sources can publish into a shared schema-defined representation, while downstream consumers such as retargeters, recorders, filters, and transport utilities read only components marked available.
+
+Its main contributions to computer graphics are: (1) a schema-parameterized avatar-motion representation with first-class component availability, (2) an adapter boundary for bringing heterogeneous XR, vision, replay, synthetic, inferred, and retargeted producers into that representation, (3) reusable availability-gated consumers via region views, and (4) prototype evidence, including producer/consumer paths and a small within-subjects Unity setup-burden study, that this contract can reduce configuration burden for the tested avatar setup workflow.
+
+
+Clarity of Exposition: It is generally clear. However, it could be improved by reducing repetition around “selected/representative/scoped” evidence, giving a more concrete end-to-end example earlier, and making the distinction between availability, confidence, and provenance more immediately explicit.
+
+
+Technical Soundness: The paper appears technically sound as a scoped systems/prototype contribution.
+
+
+Quality of References: Although there are several papers that the authors could cite. I list some papers below, but there is no need for the authors to cite them.
+
+1. Ahuja, K., Ofek, E., Gonzalez-Franco, M., Holz, C., & Wilson, A. D. (2021). Coolmoves: User motion accentuation in virtual reality. Proceedings of the ACM on Interactive, Mobile, Wearable and Ubiquitous Technologies, 5(2), 1-23.
+2. Yang, D., Kim, D., & Lee, S. H. (2021, May). Lobstr: Real‐time lower‐body pose prediction from sparse upper‐body tracking signals. In Computer Graphics Forum (Vol. 40, No. 2, pp. 265-275).
+3. Winkler, A., Won, J., & Ye, Y. (2022, November). Questsim: Human motion tracking from sparse sensors with simulated avatars. In SIGGRAPH Asia 2022 conference papers (pp. 1-8).
+4. Mousas, C. (2017). Full-body locomotion reconstruction of virtual characters using a single inertial measurement unit. Sensors, 17(11), 2589.
+5. Jiang, J., Streli, P., Meier, M., & Holz, C. (2024, September). Egoposer: Robust real-time egocentric pose estimation from sparse and intermittent observations everywhere. In European Conference on Computer Vision (pp. 277-294). Cham: Springer Nature Switzerland.
+6. Huang, Y., Kaufmann, M., Aksan, E., Black, M. J., Hilliges, O., & Pons-Moll, G. (2018). Deep inertial poser: Learning to reconstruct human pose from sparse inertial measurements in real time. ACM Transactions on Graphics (TOG), 37(6), 1-15.
+
+
+Reproducibility: The authors provided the Unity project, so I guess it is.
+
+
+Explanation of Recommendation: The authors make a clear and useful systems contribution. The main strength is that the work identifies a real pain point in computer graphics and XR pipelines and proposes a coherent abstraction that can make downstream avatar consumers more reusable. The prototype evidence, producer/consumer traceability, and setup-burden study support the paper’s scoped claim that availability-gated views can reduce configuration burden in a prepared Unity workflow.
+
+The weaknesses are mostly about scope and presentation rather than the core idea. The paper is careful not to overclaim, but some limitations are important, such as the evaluation does not measure motion quality, tracking accuracy, latency, broad device coverage, long-term maintainability, or the cost of writing new adapters; the current record also omits provenance, continuous confidence, timestamps, and schema-version negotiation, all of which matter in realistic XR systems. I would encourage the authors to strengthen the paper by adding a concrete end-to-end example early in the paper, considering expanding the related work on sparse XR pose reconstruction and avatar-motion systems, specifying more adapter/schema details for reproducibility, and discussing how the contract could evolve to represent confidence and provenance rather than only binary availability.
+
+Overall, the submission has good potential impact because it contributes a reusable data-contract perspective for XR avatar motion rather than another source-specific tracking or retargeting method. 
+
+
+----------------------------------
+REVISER VERSION
+----------------------------------
+The authors partially revised the paper based on my comments. I have no further comments for the authors.
