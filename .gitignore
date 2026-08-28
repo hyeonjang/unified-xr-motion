@@ -13,3 +13,7 @@
 
 # Built PDF (regenerate with `just build`)
 main.pdf
+*.pdf
+*.pptx
+paper1049_video_and_highlighted.zip
+*.mp4
